@@ -262,8 +262,7 @@
     }
     window.copyCode = () => { navigator.clipboard.writeText(garageId); alert('Kode disalin!'); };
     document.getElementById('team-form').onsubmit = async e => { e.preventDefault(); const email=document.getElementById('team-email').value; const r=document.getElementById('team-role').value; const g=await getDoc(doc(db,'garages',garageId)); const m=g.data().members; m.push({email,role:r}); await upd('garages',garageId,{members:m}); e.target.reset(); renderTeam(); };
-    const renderTeam = async () => { const g=await getDoc(doc(db,'garages',garageId)); document.getElementById('team-list').innerHTML=g.data().members.map(m=>`<li class="p-3 flex justify-between"><span>${m.email}</span><span class="px-2 py-1 bg-slate-200 rounded text-xs">${m.role}</span></li>`).join(''); };
-
+    
     // NAV & MODALS
     window.nav = id => { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('bg-amber-500/20','text-amber-400','border','border-amber-500/30')); event.target.classList.add('bg-amber-500/20','text-amber-400','border','border-amber-500/30'); };
     window.openModal = id => document.getElementById(`modal-${id}`).classList.add('open');
