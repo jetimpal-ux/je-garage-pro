@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Je Garage Pro - Premium Final</title>
+  <title>Je Garage Pro - Premium Stable</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -27,7 +27,7 @@
       <div class="text-center mb-6">
         <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">JG</div>
         <h1 class="text-2xl font-bold">Je Garage Pro</h1>
-        <p class="text-slate-500 text-sm">Premium Final + Parsial + Operasional</p>
+        <p class="text-slate-500 text-sm">Premium Stable + Parsial + Operasional</p>
       </div>
       <form id="login-form" class="space-y-4">
         <input type="email" id="email" placeholder="Email" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-amber-500 outline-none">
@@ -121,15 +121,12 @@
           </div>
           <div class="border-t pt-4"><h3 class="font-semibold mb-2">🔧 Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
           
-          <!-- SPAREPART SECTION -->
           <div class="border-t pt-4">
             <h3 class="font-semibold mb-2 flex items-center gap-2">
               📦 Sparepart / Bahan 
-              <span id="parts-count" class="text-xs text-slate-500 font-normal">(0 item tersedia di gudang)</span>
+              <span id="parts-count" class="text-xs text-slate-500 font-normal">(0 item)</span>
             </h3>
-            <div id="part-items" class="space-y-2">
-              <!-- Row sparepart akan ditambahkan di sini -->
-            </div>
+            <div id="part-items" class="space-y-2"></div>
             <button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline flex items-center gap-1">
               <span>+</span> Tambah Sparepart/Bahan
             </button>
@@ -226,28 +223,17 @@
     document.getElementById('tx-date').value = today; 
     document.getElementById('e-date').value = today;
 
-    const fmt = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+    const fmt = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Number(n)||0);
     const col = (name) => collection(db, 'garages', garageId, name);
     
-    // FUNGSI LOAD
+    // FUNGSI LOAD: Disederhanakan (Hanya ambil data, tanpa sorting kompleks)
     const load = async (name, opts={}) => { 
       const snapshot = await getDocs(col(name)); 
       let data = snapshot.docs.map(d=>({id:d.id,...d.data()}));
       
+      // Filter manual (Client-side)
       if(opts.where) {
         data = data.filter(item => item[opts.where.f] === opts.where.v);
-      }
-      
-      if(opts.order) {
-        data.sort((a, b) => {
-          const valA = a[opts.order];
-          const valB = b[opts.order];
-          if (valA && typeof valA === 'object' && valA.toDate) return valB.toDate() - valA.toDate(); 
-          if (valB && typeof valB === 'object' && valB.toDate) return valB.toDate() - valA.toDate();
-          if (valA > valB) return -1;
-          if (valA < valB) return 1;
-          return 0;
-        });
       }
       
       return data; 
@@ -354,14 +340,13 @@
     document.getElementById('cust-form').onsubmit = async e => { 
       e.preventDefault(); 
       try {
-        const newCust = {
+        await add('customers', {
           name:document.getElementById('c-name').value,
           phone:document.getElementById('c-phone').value,
           plate:document.getElementById('c-plate').value,
           year:document.getElementById('c-year').value,
           model:document.getElementById('c-model').value
-        };
-        await add('customers', newCust);
+        });
         closeModal('cust'); 
         document.getElementById('cust-form').reset(); 
         alert('✅ Pelanggan berhasil disimpan!');
@@ -384,7 +369,7 @@
         });
         closeModal('part'); 
         document.getElementById('part-form').reset(); 
-        alert('✅ Sparepart berhasil ditambahkan ke gudang!');
+        alert('✅ Sparepart berhasil ditambahkan!');
         await refreshAll();
       } catch(err) {
         console.error(err);
@@ -406,7 +391,7 @@
         closeModal('expense'); 
         document.getElementById('expense-form').reset(); 
         document.getElementById('e-date').value = today;
-        alert('✅ Pengeluaran operasional tercatat!');
+        alert('✅ Pengeluaran tercatat!');
         await refreshAll();
       } catch(err) {
         console.error(err);
@@ -414,7 +399,6 @@
       }
     };
 
-    // BACKUP EXPORT
     window.exportCSV = () => { 
       let csv="Nama,Stok,Satuan,Minimum Stok,Harga Jual\n"; 
       partsCache.forEach(p=>csv+=`"${p.name}",${p.stock},"${p.unit}",${p.minStock||0},${p.price}\n`); 
@@ -425,28 +409,7 @@
       a.click(); 
     };
 
-    // DYNAMIC FORMS & AUTO-CALC
-    
-    // FUNGSI UPDATE SEMUA DROPDOWN SPAREPART
-    function updateAllPartDropdowns() {
-      const allSelects = document.querySelectorAll('.part-select');
-      console.log('Updating', allSelects.length, 'dropdowns with', partsCache.length, 'parts');
-      
-      allSelects.forEach(sel => {
-        const currentValue = sel.value; // Simpan nilai yang sedang dipilih
-        if(partsCache.length === 0) {
-          sel.innerHTML = '<option value="">Gudang kosong</option>';
-        } else {
-          sel.innerHTML = '<option value="">-- Pilih Sparepart --</option>' + 
-            partsCache.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join('');
-        }
-        // Kembalikan nilai yang dipilih sebelumnya jika masih valid
-        if(currentValue && partsCache.find(p => p.id === currentValue)) {
-          sel.value = currentValue;
-        }
-      });
-    }
-
+    // DYNAMIC FORMS
     window.addServiceRow = () => { 
       const d=document.createElement('div'); 
       d.className='grid grid-cols-[1fr_80px_30px] gap-2'; 
@@ -454,10 +417,21 @@
       document.getElementById('service-items').appendChild(d); 
     };
     
-    // FUNGSI TAMBAH SPAREPART ROW - DIPERBAIKI
+    function updateAllPartDropdowns() {
+      const allSelects = document.querySelectorAll('.part-select');
+      allSelects.forEach(sel => {
+        const currentValue = sel.value;
+        if(partsCache.length === 0) {
+          sel.innerHTML = '<option value="">Gudang kosong</option>';
+        } else {
+          sel.innerHTML = '<option value="">-- Pilih --</option>' + 
+            partsCache.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join('');
+        }
+        if(currentValue && partsCache.find(p => p.id === currentValue)) sel.value = currentValue;
+      });
+    }
+
     window.addPartRow = () => { 
-      console.log('Adding part row. partsCache length:', partsCache.length);
-      
       const d=document.createElement('div'); 
       d.className='grid grid-cols-[1fr_80px_60px_80px_30px] gap-2 items-center mb-2'; 
       d.innerHTML=`
@@ -471,12 +445,11 @@
         <input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700">
         <button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; 
       
-      // Isi dropdown dengan data terbaru
       const sel = d.querySelector('.part-select');
       if(partsCache.length === 0) {
         sel.innerHTML = '<option value="">Gudang kosong</option>';
       } else {
-        sel.innerHTML = '<option value="">-- Pilih Sparepart --</option>' + 
+        sel.innerHTML = '<option value="">-- Pilih --</option>' + 
           partsCache.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join('');
       }
       
@@ -484,22 +457,12 @@
         const selectedOpt = this.options[this.selectedIndex];
         if(selectedOpt.value) {
           this.parentElement.querySelector('.part-price').value = selectedOpt.dataset.price || '';
-          // Validasi stok
-          const maxStock = Number(selectedOpt.dataset.stock) || 0;
-          const qtyInput = this.parentElement.querySelector('.part-qty');
-          qtyInput.max = maxStock;
-          if(Number(qtyInput.value) > maxStock) {
-            qtyInput.value = maxStock;
-            alert(`⚠️ Stok ${selectedOpt.text.split(' (')[0]} hanya tersisa ${maxStock}`);
-          }
         }
         calcPartSubtotal(this);
       };
       
       document.getElementById('part-items').appendChild(d); 
-      
-      // Update counter
-      document.getElementById('parts-count').textContent = `(${partsCache.length} item tersedia di gudang)`;
+      document.getElementById('parts-count').textContent = `(${partsCache.length} item)`;
     };
     
     window.togglePartType = s => { 
@@ -545,7 +508,7 @@
         if(t==='gudang'){
           const id=r.querySelector('.part-select').value,d=partsCache.find(x=>x.id===id);
           if(!d)continue;
-          if(q>d.stock)return alert(`❌ Stok ${d.name} tidak cukup! (Sisa: ${d.stock})`);
+          if(q>d.stock)return alert(`❌ Stok ${d.name} tidak cukup!`);
           parts.push({name:d.name,qty:q,price:p,source:'gudang',partId:id});
           stockUpd.push({id,q});
         } else {
@@ -553,7 +516,9 @@
         }
       }
       if(jasa.length===0&&parts.length===0)return alert('Minimal isi Jasa atau Sparepart!');
-      const pay=document.getElementById('tx-pay').value, tot=calcTotal();
+      
+      const pay=document.getElementById('tx-pay').value;
+      const tot=calcTotal();
       const tx={
         type:'income',customerId:cid,customerName:c.name,plate:c.plate,
         jasa,parts,jasaTotal:tot.j,partsTotal:tot.p,total:tot.j+tot.p,
@@ -561,16 +526,19 @@
         status:pay==='bon'?'belum_lunas':'lunas',
         paidAmount:0,remainingAmount:tot.j+tot.p
       };
+      
       try {
         const ref=await add('transactions',tx);
         if(pay==='bon') await add('receivables',{transactionId:ref.id,customerId:cid,amount:tx.total,status:'unpaid',date:tx.date});
         for(let s of stockUpd) await upd('spareparts',s.id,{stock:increment(-s.q)});
+        
         showReceipt(tx,c,ref.id); 
         document.getElementById('tx-form').reset(); 
         document.getElementById('service-items').innerHTML=''; 
         document.getElementById('part-items').innerHTML=''; 
         document.getElementById('tx-date').value=today; 
         calcTotal(); 
+        
         alert('✅ Transaksi berhasil disimpan!');
         await refreshAll();
       } catch(err) {
@@ -583,29 +551,22 @@
     const renderCustomers = () => { 
       const el=document.getElementById('cust-list'); 
       const loadingEl = document.getElementById('cust-loading');
-      
       if(customersCache.length === 0) {
         loadingEl.style.display = 'block';
-        loadingEl.textContent = 'Belum ada pelanggan. Klik tombol "Tambah" untuk menambah data.';
         el.style.display = 'none';
       } else {
         loadingEl.style.display = 'none';
         el.style.display = 'grid';
         el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1">🚗 ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('');
       }
-      
       const sel=document.getElementById('tx-customer'); 
       sel.innerHTML='<option value="">-- Pilih Pelanggan --</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); 
     };
     
     const renderWarehouse = () => { 
       document.getElementById('warehouse-list').innerHTML=partsCache.map(p=>`<tr class="hover:bg-slate-50 ${p.stock<=(p.minStock||5)?'alert-row':''}"><td class="p-4 font-medium">${p.name}</td><td class="p-4">${p.unit}</td><td class="p-4 text-right ${p.stock<=(p.minStock||5)?'stock-low':''}">${p.stock}</td><td class="p-4 text-right">${p.minStock||5}</td><td class="p-4 text-right">${fmt(p.price)}</td><td class="p-4 text-center"><button onclick="del('spareparts','${p.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Gudang kosong</td></tr>'; 
-      
-      // Update semua dropdown yang sudah ada di halaman input service
       updateAllPartDropdowns();
-      
-      // Update counter
-      document.getElementById('parts-count').textContent = `(${partsCache.length} item tersedia di gudang)`;
+      document.getElementById('parts-count').textContent = `(${partsCache.length} item)`;
     };
     
     const renderExpenses = () => { 
@@ -613,19 +574,34 @@
       document.getElementById('expense-list').innerHTML=list.map(t=>`<tr><td class="p-4">${t.date}</td><td class="p-4 capitalize">${t.description||'-'}</td><td class="p-4 text-xs text-slate-500">${t.category}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-purple-100 text-purple-700':'bg-blue-100 text-blue-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right font-bold text-red-600">${fmt(t.amount)}</td><td class="p-4 text-center"><button onclick="del('transactions','${t.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pengeluaran</td></tr>'; 
     };
     
+    // RENDER HISTORY: Dipastikan aman
     window.filterHistory = (f) => {
-      const l=txCache.filter(t=> (f==='month'?t.date.startsWith(today.slice(0,7)):true));
-      console.log('Rendering history, total transactions:', l.length);
-      
-      if(l.length === 0) {
+      console.log('Filtering history with mode:', f, 'Total txCache:', txCache.length);
+      const list = txCache.filter(t => {
+          // Safety check: Pastikan type dan date ada
+          if (!t.type || !t.date) return false;
+          
+          // Filter tipe: Hanya income
+          if (t.type !== 'income') return false;
+          
+          // Filter bulan
+          if (f !== 'all') {
+              const currentMonth = today.slice(0,7); // YYYY-MM
+              if (!t.date.startsWith(currentMonth)) return false;
+          }
+          return true;
+      });
+
+      if(list.length === 0) {
         document.getElementById('history-list').innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada transaksi</td></tr>';
         return;
       }
       
-      document.getElementById('history-list').innerHTML=l.map(t=>{
-        const d=[...t.jasa.map(j=>`J:${j.name}`),...t.parts.map(p=>`${p.name}x${p.qty}`)].join('<br>');
-        const isUnpaid = t.remainingAmount > 0;
-        const btn = isUnpaid ? `<button onclick="openSettle('${t.id}')" class="btn-sticky bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold hover:bg-emerald-600">💰 LUNASI (Sisa: ${fmt(t.remainingAmount)})</button>` : `<span class="text-xs text-emerald-600 font-medium">✅ LUNAS</span>`;
+      document.getElementById('history-list').innerHTML=list.map(t=>{
+        const d=[...(t.jasa||[]).map(j=>`J:${j.name}`),...(t.parts||[]).map(p=>`${p.name}x${p.qty}`)].join('<br>');
+        const isUnpaid = Number(t.remainingAmount) > 0;
+        const btn = isUnpaid ? `<button onclick="openSettle('${t.id}')" class="btn-sticky bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold hover:bg-emerald-600">💰 LUNASI</button>` : `<span class="text-xs text-emerald-600 font-medium">✅ LUNAS</span>`;
+        
         return `<tr class="${isUnpaid?'bg-amber-50/50':''}"><td class="p-4">${t.date}</td><td class="p-4">${t.customerName}<br><span class="text-xs text-slate-500">${t.plate}</span></td><td class="p-4 text-xs">${d}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-green-100 text-green-700':t.payment==='transfer'?'bg-blue-100 text-blue-700':'bg-amber-100 text-amber-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right"><div class="text-sm">Total: ${fmt(t.total)}</div><div class="text-xs ${isUnpaid?'text-red-600 font-bold':'text-emerald-600'}">Sisa: ${fmt(t.remainingAmount)}</div></td><td class="p-4 text-center flex flex-col gap-2 items-center">${btn}<button onclick="reprint('${t.id}')" class="text-xs text-amber-600 hover:underline">🖨️ Cetak</button></td></tr>`
       }).join('');
     };
@@ -655,8 +631,8 @@
       if(payAmt > tx.remainingAmount) return alert('Nominal melebihi sisa hutang!');
       
       try {
-        const newPaid = (tx.paidAmount||0) + payAmt;
-        const newRemaining = tx.total - newPaid;
+        const newPaid = (Number(tx.paidAmount)||0) + payAmt;
+        const newRemaining = Number(tx.total) - newPaid;
         const newStatus = newRemaining <= 0 ? 'lunas' : 'belum_lunas';
         
         await upd('transactions', tx.id, { 
@@ -682,42 +658,66 @@
     window.filterReport = f => { filterHistory(f); calcStats(f); };
     window.reprint = async id => { const t=txCache.find(x=>x.id===id); if(t) showReceipt(t,customersCache.find(x=>x.id===t.customerId),id); };
     
-    // STATS CALC
-    const calcStats = f => { 
-      const income = txCache.filter(t=>t.type==='income'&&(f==='all'?true:t.date.startsWith(today.slice(0,7))));
-      const expenses = txCache.filter(t=>t.type==='expense'&&t.category==='operational'&&(f==='all'?true:t.date.startsWith(today.slice(0,7))));
+    // STATS CALC: Dipastikan aman dan tidak error
+    window.calcStats = f => { 
+      console.log('Calculating stats with mode:', f, 'Total txCache:', txCache.length);
       
-      let cashIn=0,bankIn=0,cashOut=0,bankOut=0,unpaid=0;
-      income.forEach(t=>{ 
-        if(t.status==='lunas'){
-          if(t.payment==='cash')cashIn+=t.total; else bankIn+=t.total;
-        } else {
-          unpaid+=t.remainingAmount; 
+      let cashIn=0, bankIn=0, cashOut=0, bankOut=0, unpaid=0;
+      
+      txCache.forEach(t => { 
+        if (!t.type || !t.date) return; // Skip data rusak
+
+        if(t.type === 'income') {
+            // Hitung Piutang
+            if (t.status === 'belum_lunas') {
+                unpaid += Number(t.remainingAmount) || 0;
+            }
+            
+            // Hitung Pemasukan (Hanya yang sudah lunas)
+            if (t.status === 'lunas') {
+                const isThisMonth = f === 'all' || t.date.startsWith(today.slice(0,7));
+                if (isThisMonth) {
+                    if(t.payment === 'cash') cashIn += Number(t.total) || 0;
+                    else if(t.payment === 'transfer') bankIn += Number(t.total) || 0;
+                }
+            }
+        } else if (t.type === 'expense') {
+            if(t.payment === 'cash') cashOut += Number(t.amount) || 0;
+            else bankOut += Number(t.amount) || 0;
         }
       });
-      expenses.forEach(t=>{ if(t.payment==='cash')cashOut+=t.amount; else bankOut+=t.amount; });
       
-      document.getElementById('d-cash').textContent=fmt(cashIn-cashOut); 
-      document.getElementById('d-bank').textContent=fmt(bankIn-bankOut); 
-      document.getElementById('d-receivables').textContent=fmt(unpaid); 
-      document.getElementById('d-expenses').textContent=fmt(cashOut+bankOut); 
+      // Update Dashboard
+      document.getElementById('d-cash').textContent = fmt(cashIn - cashOut);
+      document.getElementById('d-bank').textContent = fmt(bankIn - bankOut);
+      document.getElementById('d-receivables').textContent = fmt(unpaid);
+      document.getElementById('d-expenses').textContent = fmt(cashOut + bankOut);
+
+      // Update Laporan
+      document.getElementById('rep-cash-in').textContent = fmt(cashIn);
+      document.getElementById('rep-bank-in').textContent = fmt(bankIn);
+      document.getElementById('rep-total-in').textContent = fmt(cashIn + bankIn);
       
-      document.getElementById('rep-cash-in').textContent=fmt(cashIn); document.getElementById('rep-bank-in').textContent=fmt(bankIn); document.getElementById('rep-total-in').textContent=fmt(cashIn+bankIn);
-      document.getElementById('rep-cash-out').textContent=fmt(cashOut); document.getElementById('rep-bank-out').textContent=fmt(bankOut); document.getElementById('rep-total-out').textContent=fmt(cashOut+bankOut);
-      document.getElementById('rep-net-cash').textContent=fmt(cashIn-cashOut); document.getElementById('rep-net-bank').textContent=fmt(bankIn-bankOut); document.getElementById('rep-unpaid').textContent=fmt(unpaid); 
+      document.getElementById('rep-cash-out').textContent = fmt(cashOut);
+      document.getElementById('rep-bank-out').textContent = fmt(bankOut);
+      document.getElementById('rep-total-out').textContent = fmt(cashOut + bankOut);
+      
+      document.getElementById('rep-net-cash').textContent = fmt(cashIn - cashOut);
+      document.getElementById('rep-net-bank').textContent = fmt(bankIn - bankOut);
+      document.getElementById('rep-unpaid').textContent = fmt(unpaid);
     };
 
     // PRINT & WA
     window.showReceipt = async (tx,c,id) => { 
-      const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #ccc;"><h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><p style="text-align:center;font-size:12px;color:#666;">Nota Service</p><hr/><p><b>Tgl:</b> ${tx.date}<br><b>ID:</b> ${id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:13px;margin:10px 0;"><tr><th style="text-align:left;">Item</th><th style="text-align:right;">Total</th></tr>${tx.jasa.map(j=>`<tr><td>Jasa: ${j.name}</td><td style="text-align:right;">${fmt(j.amount)}</td></tr>`).join('')}${tx.parts.map(p=>`<tr><td>${p.name} x${p.qty}</td><td style="text-align:right;">${fmt(p.price*p.qty)}</td></tr>`).join('')}<tr style="border-top:2px solid #000;"><td><b>TOTAL</b></td><td style="text-align:right;"><b>${fmt(tx.total)}</b></td></tr></table><p><b>Bayar:</b> ${tx.payment.toUpperCase()} | <b>Status:</b> ${tx.status.toUpperCase()}</p><hr/><p style="text-align:center;font-size:11px;">Terima kasih.</p></div>`; 
+      const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #ccc;"><h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><p style="text-align:center;font-size:12px;color:#666;">Nota Service</p><hr/><p><b>Tgl:</b> ${tx.date}<br><b>ID:</b> ${id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:13px;margin:10px 0;"><tr><th style="text-align:left;">Item</th><th style="text-align:right;">Total</th></tr>${(tx.jasa||[]).map(j=>`<tr><td>Jasa: ${j.name}</td><td style="text-align:right;">${fmt(j.amount)}</td></tr>`).join('')}${(tx.parts||[]).map(p=>`<tr><td>${p.name} x${p.qty}</td><td style="text-align:right;">${fmt(p.price*p.qty)}</td></tr>`).join('')}<tr style="border-top:2px solid #000;"><td><b>TOTAL</b></td><td style="text-align:right;"><b>${fmt(tx.total)}</b></td></tr></table><p><b>Bayar:</b> ${tx.payment.toUpperCase()} | <b>Status:</b> ${tx.status.toUpperCase()}</p><hr/><p style="text-align:center;font-size:11px;">Terima kasih.</p></div>`; 
       document.getElementById('print-area').innerHTML=html; 
       document.getElementById('print-area').classList.remove('hidden'); 
       window.print(); 
       setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000); 
       if(confirm('Kirim nota via WhatsApp?')){
         let m=`*NOTA SERVICE*\n📅 ${tx.date}\n👤 ${c.name} | 🚗 ${tx.plate}\n\n`; 
-        tx.jasa.forEach(j=>m+=`• ${j.name}: ${fmt(j.amount)}\n`); 
-        tx.parts.forEach(p=>m+=`• ${p.name}x${p.qty}: ${fmt(p.price*p.qty)}\n`); 
+        (tx.jasa||[]).forEach(j=>m+=`• ${j.name}: ${fmt(j.amount)}\n`); 
+        (tx.parts||[]).forEach(p=>m+=`• ${p.name}x${p.qty}: ${fmt(p.price*p.qty)}\n`); 
         m+=`\n💰 *TOTAL: ${fmt(tx.total)}*\n💳 ${tx.payment.toUpperCase()} | 📝 ${tx.status.toUpperCase()}\n\nTerima kasih 🙏`; 
         window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`,'_blank');
       } 
@@ -735,41 +735,44 @@
       } 
     };
 
-    // GLOBAL REFRESH
+    // GLOBAL REFRESH: Inti perbaikan
     async function refreshAll() { 
       if(!user||!garageId) return;
       try {
-        console.log('Refreshing all data...');
+        console.log('Refresh All Started...');
+        
+        // Ambil semua data mentah
         const [customers, transactions, parts, receivables] = await Promise.all([
-          load('customers', {order:'createdAt'}),
-          load('transactions', {order:'date'}),
-          load('spareparts', {order:'name'}),
-          load('receivables', {where:{f:'status',op:'==',v:'unpaid'}, order:'date'})
+          load('customers'),
+          load('transactions'), // Tanpa sorting rumit
+          load('spareparts'),
+          load('receivables', {where:{f:'status',op:'==',v:'unpaid'}})
         ]);
         
-        console.log('Data loaded:', {
-          customers: customers.length,
-          transactions: transactions.length,
-          parts: parts.length,
-          receivables: receivables.length
-        });
-        
+        // Update Global Variables
         customersCache = customers;
         txCache = transactions;
         partsCache = parts;
         recCache = receivables;
-        
+
+        console.log('Data Refreshed:', {
+          c: customers.length,
+          t: transactions.length,
+          p: parts.length,
+          r: receivables.length
+        });
+
+        // Render Semua Halaman
         renderCustomers();
-        renderWarehouse(); // Ini akan update semua dropdown sparepart
+        renderWarehouse();
         renderExpenses();
-        filterHistory('all');
+        filterHistory('all'); // Render History
         renderReceivables();
-        calcStats();
-        if(role==='admin') renderTeam();
+        calcStats('all');     // Render Dashboard & Report
         
-        console.log('Refresh complete');
+        if(role==='admin') renderTeam();
       } catch(err) {
-        console.error('Refresh error:', err);
+        console.error('Refresh Error:', err);
       }
     }
     window.refreshAll = refreshAll;
