@@ -120,7 +120,18 @@
             <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="date" id="tx-date" class="w-full px-4 py-3 rounded-xl border border-gray-200" required></div>
           </div>
           <div class="border-t pt-4"><h3 class="font-semibold mb-2">🔧 Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
-          <div class="border-t pt-4"><h3 class="font-semibold mb-2">📦 Sparepart / Bahan</h3><div id="part-items" class="space-y-2"></div><button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline">+ Tambah Sparepart/Bahan</button></div>
+          
+          <!-- SPAREPART SECTION - DIPERBAIKI -->
+          <div class="border-t pt-4">
+            <h3 class="font-semibold mb-2">📦 Sparepart / Bahan</h3>
+            <div id="part-items" class="space-y-2">
+              <!-- Row sparepart akan ditambahkan di sini -->
+            </div>
+            <button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline flex items-center gap-1">
+              <span>+</span> Tambah Sparepart/Bahan
+            </button>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
             <div><label class="block text-sm font-medium mb-1">Metode Pembayaran</label><select id="tx-pay" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="cash">💵 Tunai</option><option value="transfer">🏦 Transfer Bank</option><option value="bon">📝 Bon / Kredit</option></select></div>
             <div><label class="block text-sm font-medium mb-1">Grand Total</label><input type="text" id="tx-total" readonly class="w-full px-4 py-3 rounded-xl bg-slate-100 font-bold text-lg text-slate-800"></div>
@@ -136,7 +147,18 @@
 
       <div id="history" class="page">
         <h2 class="text-2xl font-bold mb-6">Histori Transaksi</h2>
-        <div class="bg-white rounded-2xl shadow overflow-x-auto"><table class="w-full text-sm min-w-[700px]"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Tanggal</th><th class="p-4 text-left">Pelanggan</th><th class="p-4 text-left">Detail</th><th class="p-4 text-left">Bayar</th><th class="p-4 text-right">Total/Sisa</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="history-list" class="divide-y"></tbody></table></div>
+        <div class="flex gap-2 mb-4">
+          <button onclick="filterHistory('all')" class="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm">Semua</button>
+          <button onclick="filterHistory('month')" class="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm">Bulan Ini</button>
+        </div>
+        <div class="bg-white rounded-2xl shadow overflow-x-auto">
+          <table class="w-full text-sm min-w-[700px]">
+            <thead class="bg-slate-100 text-slate-600">
+              <tr><th class="p-4 text-left">Tanggal</th><th class="p-4 text-left">Pelanggan</th><th class="p-4 text-left">Detail</th><th class="p-4 text-left">Bayar</th><th class="p-4 text-right">Total/Sisa</th><th class="p-4 text-center">Aksi</th></tr>
+            </thead>
+            <tbody id="history-list" class="divide-y"></tbody>
+          </table>
+        </div>
       </div>
 
       <div id="reports" class="page">
@@ -204,31 +226,22 @@
     const fmt = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
     const col = (name) => collection(db, 'garages', garageId, name);
     
-    // FUNGSI LOAD YANG DIPERBAIKI (Client-side sorting/filtering to avoid Index Error)
+    // FUNGSI LOAD YANG DIPERBAIKI
     const load = async (name, opts={}) => { 
-      // 1. Fetch semua data tanpa filter/orderBy dari server
       const snapshot = await getDocs(col(name)); 
       let data = snapshot.docs.map(d=>({id:d.id,...d.data()}));
       
-      // 2. Filter data di Javascript
       if(opts.where) {
-        data = data.filter(item => {
-           // Simple equality check
-           return item[opts.where.f] === opts.where.v;
-        });
+        data = data.filter(item => item[opts.where.f] === opts.where.v);
       }
       
-      // 3. Sort data di Javascript
       if(opts.order) {
         data.sort((a, b) => {
           const valA = a[opts.order];
           const valB = b[opts.order];
-          // Handle Timestamp objects from Firestore
           if (valA && typeof valA === 'object' && valA.toDate) return valB.toDate() - valA.toDate(); 
           if (valB && typeof valB === 'object' && valB.toDate) return valB.toDate() - valA.toDate();
-          
-          // Handle strings/numbers
-          if (valA > valB) return -1; // Descending
+          if (valA > valB) return -1;
           if (valA < valB) return 1;
           return 0;
         });
@@ -239,7 +252,19 @@
 
     const add = async (name, data) => addDoc(col(name), {...data, createdAt: serverTimestamp()});
     const upd = async (name, id, data) => updateDoc(doc(db,'garages',garageId,name,id), data);
-    const del = async (name, id) => deleteDoc(doc(db,'garages',garageId,name,id));
+    
+    // FUNGSI DELETE - DIPERBAIKI
+    window.del = async (name, id) => {
+      if(!confirm('Yakin ingin menghapus data ini?')) return;
+      try {
+        await deleteDoc(doc(db, 'garages', garageId, name, id));
+        alert('✅ Data berhasil dihapus');
+        await refreshAll();
+      } catch(err) {
+        console.error('Delete error:', err);
+        alert('❌ Gagal menghapus: ' + err.message);
+      }
+    };
 
     // AUTH & GARAGE
     onAuthStateChanged(auth, async (u) => {
@@ -406,6 +431,7 @@
       document.getElementById('service-items').appendChild(d); 
     };
     
+    // FUNGSI TAMBAH SPAREPART ROW - DIPERBAIKI
     window.addPartRow = () => { 
       const d=document.createElement('div'); 
       d.className='grid grid-cols-[1fr_80px_60px_80px_30px] gap-2 items-center mb-2'; 
@@ -413,15 +439,29 @@
         <select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)">
           <option value="gudang">Dari Gudang</option><option value="manual">Manual</option>
         </select>
-        <select class="px-2 py-2 rounded-lg border part-select hidden"></select>
+        <select class="px-2 py-2 rounded-lg border part-select hidden w-full"></select>
         <input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual">
         <input type="number" placeholder="Harga Satuan" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartSubtotal(this)">
         <input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartSubtotal(this)">
         <input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700">
         <button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; 
+      
+      // Populate dropdown dengan data gudang
       const sel=d.querySelector('.part-select'); 
-      sel.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (${p.stock})</option>`).join(''); 
-      sel.onchange=function(){this.parentElement.querySelector('.part-price').value=this.options[this.selectedIndex].dataset.price||'';calcPartSubtotal(this);}; 
+      if(partsCache.length === 0) {
+        sel.innerHTML='<option value="">Gudang kosong</option>';
+      } else {
+        sel.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join(''); 
+      }
+      
+      sel.onchange=function(){
+        const selectedOpt = this.options[this.selectedIndex];
+        if(selectedOpt.value) {
+          this.parentElement.querySelector('.part-price').value=selectedOpt.dataset.price||'';
+        }
+        calcPartSubtotal(this);
+      }; 
+      
       document.getElementById('part-items').appendChild(d); 
     };
     
@@ -517,14 +557,19 @@
         el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1">🚗 ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('');
       }
       
-      // Update dropdown
       const sel=document.getElementById('tx-customer'); 
       sel.innerHTML='<option value="">-- Pilih Pelanggan --</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); 
     };
     
     const renderWarehouse = () => { 
       document.getElementById('warehouse-list').innerHTML=partsCache.map(p=>`<tr class="hover:bg-slate-50 ${p.stock<=(p.minStock||5)?'alert-row':''}"><td class="p-4 font-medium">${p.name}</td><td class="p-4">${p.unit}</td><td class="p-4 text-right ${p.stock<=(p.minStock||5)?'stock-low':''}">${p.stock}</td><td class="p-4 text-right">${p.minStock||5}</td><td class="p-4 text-right">${fmt(p.price)}</td><td class="p-4 text-center"><button onclick="del('spareparts','${p.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Gudang kosong</td></tr>'; 
-      document.querySelectorAll('.part-select').forEach(s=>s.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (${p.stock})</option>`).join('')); 
+      document.querySelectorAll('.part-select').forEach(s=>{
+        if(partsCache.length === 0) {
+          s.innerHTML='<option value="">Gudang kosong</option>';
+        } else {
+          s.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join('');
+        }
+      }); 
     };
     
     const renderExpenses = () => { 
@@ -532,14 +577,22 @@
       document.getElementById('expense-list').innerHTML=list.map(t=>`<tr><td class="p-4">${t.date}</td><td class="p-4 capitalize">${t.description||'-'}</td><td class="p-4 text-xs text-slate-500">${t.category}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-purple-100 text-purple-700':'bg-blue-100 text-blue-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right font-bold text-red-600">${fmt(t.amount)}</td><td class="p-4 text-center"><button onclick="del('transactions','${t.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pengeluaran</td></tr>'; 
     };
     
-    const renderHistory = f => { 
-      const l=txCache.filter(t=>t.type==='income'&&(f==='month'?t.date.startsWith(today.slice(0,7)):true));
+    // FUNGSI RENDER HISTORY - DIPERBAIKI
+    window.filterHistory = (f) => {
+      const l=txCache.filter(t=> (f==='month'?t.date.startsWith(today.slice(0,7)):true));
+      console.log('Rendering history, total transactions:', l.length);
+      
+      if(l.length === 0) {
+        document.getElementById('history-list').innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada transaksi</td></tr>';
+        return;
+      }
+      
       document.getElementById('history-list').innerHTML=l.map(t=>{
         const d=[...t.jasa.map(j=>`J:${j.name}`),...t.parts.map(p=>`${p.name}x${p.qty}`)].join('<br>');
         const isUnpaid = t.remainingAmount > 0;
         const btn = isUnpaid ? `<button onclick="openSettle('${t.id}')" class="btn-sticky bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold hover:bg-emerald-600">💰 LUNASI (Sisa: ${fmt(t.remainingAmount)})</button>` : `<span class="text-xs text-emerald-600 font-medium">✅ LUNAS</span>`;
         return `<tr class="${isUnpaid?'bg-amber-50/50':''}"><td class="p-4">${t.date}</td><td class="p-4">${t.customerName}<br><span class="text-xs text-slate-500">${t.plate}</span></td><td class="p-4 text-xs">${d}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-green-100 text-green-700':t.payment==='transfer'?'bg-blue-100 text-blue-700':'bg-amber-100 text-amber-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right"><div class="text-sm">Total: ${fmt(t.total)}</div><div class="text-xs ${isUnpaid?'text-red-600 font-bold':'text-emerald-600'}">Sisa: ${fmt(t.remainingAmount)}</div></td><td class="p-4 text-center flex flex-col gap-2 items-center">${btn}<button onclick="reprint('${t.id}')" class="text-xs text-amber-600 hover:underline">🖨️ Cetak</button></td></tr>`
-      }).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>'; 
+      }).join('');
     };
     
     const renderReceivables = () => { 
@@ -651,12 +704,21 @@
     async function refreshAll() { 
       if(!user||!garageId) return;
       try {
+        console.log('Refreshing all data...');
         const [customers, transactions, parts, receivables] = await Promise.all([
           load('customers', {order:'createdAt'}),
           load('transactions', {order:'date'}),
           load('spareparts', {order:'name'}),
           load('receivables', {where:{f:'status',op:'==',v:'unpaid'}, order:'date'})
         ]);
+        
+        console.log('Data loaded:', {
+          customers: customers.length,
+          transactions: transactions.length,
+          parts: parts.length,
+          receivables: receivables.length
+        });
+        
         customersCache = customers;
         txCache = transactions;
         partsCache = parts;
@@ -665,10 +727,12 @@
         renderCustomers();
         renderWarehouse();
         renderExpenses();
-        renderHistory();
+        filterHistory('all'); // Render history with all data
         renderReceivables();
         calcStats();
         if(role==='admin') renderTeam();
+        
+        console.log('Refresh complete');
       } catch(err) {
         console.error('Refresh error:', err);
       }
