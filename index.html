@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Je Garage Pro - Premium Stable + Print</title>
+  <title>Je Garage Pro - Fixed Lunasi Bug</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -34,7 +34,7 @@
       <div class="text-center mb-6">
         <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">JG</div>
         <h1 class="text-2xl font-bold">Je Garage Pro</h1>
-        <p class="text-slate-500 text-sm">Premium Stable + Print Histori/Laporan</p>
+        <p class="text-slate-500 text-sm">Premium Stable + Fix Lunasi</p>
       </div>
       <form id="login-form" class="space-y-4">
         <input type="email" id="email" placeholder="Email" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-amber-500 outline-none">
@@ -375,8 +375,22 @@
         if(t==='gudang'){const id=r.querySelector('.part-select').value,d=partsCache.find(x=>x.id===id);if(!d)continue;if(q>d.stock)return alert(`❌ Stok ${d.name} tidak cukup!`);parts.push({name:d.name,qty:q,price:p,source:'gudang',partId:id});stockUpd.push({id,q});}else{parts.push({name:r.querySelector('.part-manual').value,qty:q,price:p,source:'manual'});}
       }
       if(jasa.length===0&&parts.length===0)return alert('Minimal isi Jasa atau Sparepart!');
-      const pay=document.getElementById('tx-pay').value, tot=calcTotal();
-      const tx={type:'income',customerId:cid,customerName:c.name,plate:c.plate,jasa,parts,jasaTotal:tot.j,partsTotal:tot.p,total:tot.j+tot.p,payment:pay,date:document.getElementById('tx-date').value,status:pay==='bon'?'belum_lunas':'lunas',paidAmount:0,remainingAmount:tot.j+tot.p};
+      
+      const pay=document.getElementById('tx-pay').value;
+      const tot=calcTotal();
+      
+      // 🔥 PERBAIKAN LOGIKA DISINI: Jika Bon, sisa hutang = Total. Jika Tunai/Transfer, sisa hutang = 0.
+      const remaining = pay === 'bon' ? (tot.j + tot.p) : 0;
+      
+      const tx={
+        type:'income',customerId:cid,customerName:c.name,plate:c.plate,
+        jasa,parts,jasaTotal:tot.j,partsTotal:tot.p,total:tot.j+tot.p,
+        payment:pay,date:document.getElementById('tx-date').value,
+        status: pay==='bon'?'belum_lunas':'lunas',
+        paidAmount: pay==='bon' ? 0 : (tot.j+tot.p),
+        remainingAmount: remaining
+      };
+
       try {
         const ref=await add('transactions',tx);
         if(pay==='bon') await add('receivables',{transactionId:ref.id,customerId:cid,amount:tx.total,status:'unpaid',date:tx.date});
@@ -400,14 +414,18 @@
       const list=txCache.filter(t=>t.type==='expense'&&t.category==='operational'); 
       document.getElementById('expense-list').innerHTML=list.map(t=>`<tr><td class="p-4">${t.date}</td><td class="p-4">${t.description||'-'}</td><td class="p-4 text-xs text-slate-500">${t.category}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-purple-100 text-purple-700':'bg-blue-100 text-blue-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right font-bold text-red-600">${fmt(t.amount)}</td><td class="p-4 text-center"><button onclick="del('transactions','${t.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>'; 
     };
+    
     window.filterHistory = (f) => {
       const list=txCache.filter(t=>t.type==='income'&&(f==='month'?t.date.startsWith(today.slice(0,7)):true));
       document.getElementById('history-list').innerHTML=list.length?list.map(t=>{
         const d=[...(t.jasa||[]).map(j=>j.name),...(t.parts||[]).map(p=>`${p.name}x${p.qty}`)].join(', ');
-        const isUnpaid=Number(t.remainingAmount)>0;
+        // LOGIKA PERBAIKAN TOMBOL LUNASI: Hanya muncul jika statusnya memang 'belum_lunas'
+        const isUnpaid = t.status === 'belum_lunas' && Number(t.remainingAmount) > 0;
+        
         return `<tr class="${isUnpaid?'bg-amber-50/50':''}"><td class="p-4">${t.date}</td><td class="p-4">${t.customerName}<br><span class="text-xs text-slate-500">${t.plate}</span></td><td class="p-4 text-xs">${d}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-green-100 text-green-700':t.payment==='transfer'?'bg-blue-100 text-blue-700':'bg-amber-100 text-amber-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right"><div class="text-sm">Total: ${fmt(t.total)}</div><div class="text-xs ${isUnpaid?'text-red-600 font-bold':'text-emerald-600'}">Sisa: ${fmt(t.remainingAmount)}</div></td><td class="p-4 text-center flex flex-col gap-2 items-center">${isUnpaid?`<button onclick="openSettle('${t.id}')" class="btn-sticky bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold">💰 LUNASI</button>`:'<span class="text-xs text-emerald-600 font-medium">✅ LUNAS</span>'}<button onclick="reprint('${t.id}')" class="text-xs text-amber-600 hover:underline">🖨️ Cetak</button></td></tr>`
       }).join(''):'<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada transaksi</td></tr>';
     };
+    
     const renderReceivables = () => { 
       document.getElementById('rec-list').innerHTML=recCache.map(x=>`<div class="bg-white p-4 rounded-xl shadow border border-amber-200 bg-amber-50/30"><div class="flex justify-between items-start"><h3 class="font-bold text-lg">${fmt(x.amount)}</h3><span class="text-xs text-amber-700 bg-amber-200 px-2 py-1 rounded">BELUM LUNAS</span></div><p class="text-sm text-slate-600 mt-2">📅 ${x.date}</p><button onclick="openSettle('${x.transactionId}')" class="btn-sticky mt-3 w-full bg-emerald-500 text-white py-2 rounded-lg text-sm font-bold">💰 LUNASI HUTANG</button></div>`).join('')||'<p class="text-slate-400 text-center py-8">Tidak ada piutang</p>'; 
     };
@@ -460,7 +478,7 @@
       document.getElementById('print-area').innerHTML=html; document.getElementById('print-area').classList.remove('hidden'); window.print(); setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),500);
     };
 
-    // 🖨️ NEW PRINT FUNCTIONS (HISTORI & LAPORAN)
+    // PRINT FUNCTIONS
     const getFilteredTx = (range) => {
       return txCache.filter(t => {
         if (!t.type || t.type !== 'income') return false;
@@ -552,7 +570,6 @@
       setTimeout(() => { window.print(); document.getElementById('print-report-area').classList.add('hidden'); }, 300);
     };
 
-    // GLOBAL REFRESH
     async function refreshAll() { 
       if(!user||!garageId) return;
       try {
