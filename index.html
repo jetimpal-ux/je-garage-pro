@@ -3,113 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Je Garage Pro</title>
+  <title>Je Garage Pro - Multi User + Gudang + Pelunasan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .page { display: none; }
-    .page.active { display: block; }
-    .fade-in { animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .modal-bg { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+    .page { display: none; } .page.active { display: block; animation: fade 0.3s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-50; align-items: center; justify-content: center; padding: 1rem; }
+    .modal.open { display: flex; }
+    .alert-row { background: #fef2f2; border-left: 4px solid #ef4444; }
+    .stock-low { color: #dc2626; font-weight: bold; }
+    .btn-sticky { position: relative; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; } }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 
-  <!-- LOGIN SCREEN -->
+  <!-- LOGIN -->
   <div id="auth-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
-    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md fade-in">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
       <div class="text-center mb-6">
-        <div class="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">JG</div>
+        <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">JG</div>
         <h1 class="text-2xl font-bold">Je Garage Pro</h1>
-        <p class="text-slate-500 text-sm">Masuk untuk mengelola bengkel</p>
+        <p class="text-slate-500 text-sm">Multi-User + Gudang + Pelunasan</p>
       </div>
       <form id="login-form" class="space-y-4">
         <input type="email" id="email" placeholder="Email" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-amber-500 outline-none">
         <input type="password" id="password" placeholder="Password" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-amber-500 outline-none">
-        <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">Masuk</button>
+        <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">Masuk</button>
         <p id="login-error" class="text-red-500 text-sm text-center hidden"></p>
       </form>
     </div>
   </div>
 
-  <!-- APP SCREEN -->
+  <!-- GARAGE SETUP / JOIN -->
+  <div id="garage-screen" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4 text-center">Setup Garage / Masuk Tim</h2>
+      <div class="space-y-4">
+        <button onclick="showGarageForm('create')" class="w-full bg-amber-500 text-white py-3 rounded-xl font-medium hover:bg-amber-600">➕ Buat Garage Baru (Admin)</button>
+        <div class="text-center text-slate-400">atau</div>
+        <button onclick="showGarageForm('join')" class="w-full bg-slate-700 text-white py-3 rounded-xl font-medium hover:bg-slate-600">🔑 Gabung Garage (Kode)</button>
+      </div>
+      <div id="garage-forms" class="mt-4 hidden space-y-3">
+        <input id="g-name" placeholder="Nama Garage" class="w-full px-4 py-3 rounded-xl border border-gray-200">
+        <input id="g-code" placeholder="Kode Garage (jika join)" class="w-full px-4 py-3 rounded-xl border border-gray-200 hidden">
+        <div class="flex gap-3">
+          <button onclick="document.getElementById('garage-forms').classList.add('hidden')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button>
+          <button id="g-submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium">Lanjut</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
   <div id="app-screen" class="hidden min-h-screen flex flex-col md:flex-row">
-    <!-- Sidebar -->
     <aside class="w-full md:w-64 bg-slate-900 text-white p-4 md:fixed md:h-full z-10">
-      <div class="flex items-center gap-3 mb-8 px-2">
-        <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center font-bold">JG</div>
-        <div><h1 class="font-bold">Je Garage Pro</h1><p class="text-xs text-slate-400">Premium</p></div>
+      <div class="flex items-center gap-3 mb-6 px-2">
+        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center font-bold">JG</div>
+        <div><h1 class="font-bold" id="sidebar-garage">Garage</h1><p class="text-xs text-slate-400" id="sidebar-role">Role: Admin</p></div>
       </div>
       <nav class="space-y-2">
-        <button onclick="showPage('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">📊 Dashboard</button>
-        <button onclick="showPage('customers')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">👥 Pelanggan</button>
-        <button onclick="showPage('transactions')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">💰 Transaksi</button>
-        <button onclick="showPage('receivables')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📝 Piutang</button>
+        <button onclick="nav('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">📊 Dashboard</button>
+        <button onclick="nav('warehouse')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📦 Gudang</button>
+        <button onclick="nav('customers')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">👥 Pelanggan</button>
+        <button onclick="nav('new-tx')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">🔧 Input Service</button>
+        <button onclick="nav('history')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📜 Histori</button>
+        <button onclick="nav('reports')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📈 Laporan</button>
+        <button onclick="nav('receivables')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📝 Piutang</button>
+        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">⚙️ Pengaturan Tim</button>
       </nav>
-      <button onclick="logout()" class="mt-8 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400">🚪 Logout</button>
+      <button onclick="logout()" class="mt-6 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400">🚪 Logout</button>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 md:ml-64 p-4 md:p-8">
-      <!-- Dashboard -->
-      <div id="dashboard" class="page active fade-in">
-        <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+    <main class="flex-1 md:ml-64 p-4 md:p-8 pb-24">
+      <div id="dashboard" class="page active">
+        <h2 class="text-2xl font-bold mb-6">Dashboard Keuangan</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div class="bg-white p-5 rounded-2xl shadow border border-gray-100"><p class="text-sm text-slate-500">Pemasukan</p><p id="stat-income" class="text-xl font-bold text-emerald-600">Rp 0</p></div>
-          <div class="bg-white p-5 rounded-2xl shadow border border-gray-100"><p class="text-sm text-slate-500">Pengeluaran</p><p id="stat-expense" class="text-xl font-bold text-red-600">Rp 0</p></div>
-          <div class="bg-white p-5 rounded-2xl shadow border border-gray-100"><p class="text-sm text-slate-500">Piutang</p><p id="stat-receivable" class="text-xl font-bold text-amber-600">Rp 0</p></div>
-          <div class="bg-white p-5 rounded-2xl shadow border border-gray-100"><p class="text-sm text-slate-500">Saldo Bersih</p><p id="stat-balance" class="text-xl font-bold text-slate-800">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-emerald-500"><p class="text-sm text-slate-500">Saldo Bersih</p><p id="d-balance" class="text-xl font-bold text-emerald-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-amber-500"><p class="text-sm text-slate-500">Total Piutang</p><p id="d-receivables" class="text-xl font-bold text-amber-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-blue-500"><p class="text-sm text-slate-500">Bank Transfer</p><p id="d-transfer" class="text-xl font-bold text-blue-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-purple-500"><p class="text-sm text-slate-500">Tunai Masuk</p><p id="d-cash" class="text-xl font-bold text-purple-600">Rp 0</p></div>
         </div>
-        <button onclick="showPage('transactions')" class="bg-slate-800 text-white px-6 py-3 rounded-xl hover:bg-slate-700 transition">➕ Tambah Transaksi</button>
       </div>
 
-      <!-- Customers -->
-      <div id="customers" class="page fade-in">
+      <div id="warehouse" class="page">
+        <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
+          <h2 class="text-2xl font-bold">📦 Gudang Sparepart</h2>
+          <div class="flex gap-2">
+            <button onclick="exportCSV()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 transition">📥 Export Stok (CSV)</button>
+            <button onclick="openModal('part')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">➕ Tambah Sparepart</button>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Nama</th><th class="p-4 text-left">Satuan</th><th class="p-4 text-right">Stok</th><th class="p-4 text-right">Min Stok</th><th class="p-4 text-right">Harga</th><th class="p-4 text-center">Aksi</th></tr></thead>
+            <tbody id="warehouse-list" class="divide-y"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="customers" class="page">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold">Pelanggan</h2>
-          <button onclick="openModal('customer')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">➕ Tambah</button>
+          <h2 class="text-2xl font-bold">Data Pelanggan & Kendaraan</h2>
+          <button onclick="openModal('cust')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">➕ Tambah</button>
         </div>
-        <div id="customer-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cust-list"></div>
       </div>
 
-      <!-- Transactions -->
-      <div id="transactions" class="page fade-in">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold">Transaksi</h2>
-          <button onclick="openModal('transaction')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">➕ Tambah</button>
-        </div>
-        <div id="transaction-list" class="space-y-3"></div>
+      <div id="new-tx" class="page">
+        <h2 class="text-2xl font-bold mb-6">Input Service & Sparepart</h2>
+        <form id="tx-form" class="bg-white p-6 rounded-2xl shadow space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="block text-sm font-medium mb-1">Pilih Pelanggan</label><select id="tx-customer" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required></select></div>
+            <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="date" id="tx-date" class="w-full px-4 py-3 rounded-xl border border-gray-200" required></div>
+          </div>
+          <div class="border-t pt-4"><h3 class="font-semibold mb-2">🔧 Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
+          <div class="border-t pt-4"><h3 class="font-semibold mb-2">📦 Sparepart / Bahan</h3><div id="part-items" class="space-y-2"></div><button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline">+ Tambah Sparepart/Bahan</button></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+            <div><label class="block text-sm font-medium mb-1">Metode Pembayaran</label><select id="tx-pay" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="cash">💵 Tunai</option><option value="transfer">🏦 Transfer Bank</option><option value="bon">📝 Bon / Kredit</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">Grand Total</label><input type="text" id="tx-total" readonly class="w-full px-4 py-3 rounded-xl bg-slate-100 font-bold text-lg text-slate-800"></div>
+          </div>
+          <button type="submit" class="w-full bg-slate-800 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">💾 Simpan & Cetak Nota</button>
+        </form>
       </div>
 
-      <!-- Receivables -->
-      <div id="receivables" class="page fade-in">
-        <h2 class="text-2xl font-bold mb-6">Daftar Piutang</h2>
-        <div id="receivable-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <div id="history" class="page">
+        <h2 class="text-2xl font-bold mb-6">Histori Transaksi</h2>
+        <div class="bg-white rounded-2xl shadow overflow-x-auto"><table class="w-full text-sm min-w-[700px]"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Tanggal</th><th class="p-4 text-left">Pelanggan</th><th class="p-4 text-left">Detail</th><th class="p-4 text-left">Bayar</th><th class="p-4 text-right">Total</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="history-list" class="divide-y"></tbody></table></div>
+      </div>
+
+      <div id="reports" class="page">
+        <h2 class="text-2xl font-bold mb-6">Laporan Keuangan</h2>
+        <div class="flex flex-wrap gap-2 mb-6">
+          <button onclick="filterReport('all')" class="px-4 py-2 rounded-lg bg-amber-500 text-white">Semua</button>
+          <button onclick="filterReport('month')" class="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300">Bulan Ini</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-2xl shadow text-center"><p class="text-slate-500">Tunai</p><p id="rep-cash" class="text-2xl font-bold text-purple-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow text-center"><p class="text-slate-500">Transfer</p><p id="rep-transfer" class="text-2xl font-bold text-blue-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow text-center"><p class="text-slate-500">Bon/Piutang</p><p id="rep-bon" class="text-2xl font-bold text-amber-600">Rp 0</p></div>
+        </div>
+      </div>
+
+      <div id="receivables" class="page">
+        <h2 class="text-2xl font-bold mb-6">Daftar Piutang / Belum Lunas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="rec-list"></div>
+      </div>
+
+      <div id="settings" class="page admin-only hidden">
+        <h2 class="text-2xl font-bold mb-6">⚙️ Pengaturan Tim & Garage</h2>
+        <div class="bg-white p-6 rounded-2xl shadow mb-6">
+          <h3 class="font-semibold mb-4">Kode Garage (Bagikan ke Anggota)</h3>
+          <div class="flex items-center gap-3 bg-slate-100 p-3 rounded-lg">
+            <code id="garage-code-display" class="flex-1 font-mono text-lg text-center">LOADING...</code>
+            <button onclick="copyCode()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700">📋 Copy</button>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow">
+          <h3 class="font-semibold mb-4">Daftar Anggota</h3>
+          <form id="team-form" class="flex gap-2 mb-4">
+            <input id="team-email" type="email" placeholder="Email anggota baru" required class="flex-1 px-3 py-2 rounded-lg border">
+            <select id="team-role" class="px-3 py-2 rounded-lg border"><option value="mekanik">Mekanik</option><option value="kasir">Kasir</option><option value="admin">Admin</option></select>
+            <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">Tambah</button>
+          </form>
+          <ul id="team-list" class="divide-y"></ul>
+        </div>
       </div>
     </main>
   </div>
 
-  <!-- MODAL -->
-  <div id="modal" class="fixed inset-0 modal-bg hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 fade-in">
-      <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
-      <form id="modal-form" class="space-y-4"></form>
-      <div class="flex gap-3 mt-6">
-        <button onclick="closeModal()" class="flex-1 py-2 border border-gray-200 rounded-xl hover:bg-gray-50">Batal</button>
-        <button id="modal-submit" class="flex-1 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 font-medium">Simpan</button>
-      </div>
-    </div>
-  </div>
+  <!-- MODALS -->
+  <div id="modal-cust" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6"><h3 class="text-xl font-bold mb-4">Tambah Pelanggan</h3><form id="cust-form" class="space-y-4"><input id="c-name" placeholder="Nama Lengkap" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="c-phone" placeholder="Telepon" type="tel" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="grid grid-cols-2 gap-3"><input id="c-plate" placeholder="No. Plat" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="c-year" placeholder="Tahun" type="number" class="w-full px-4 py-3 rounded-xl border border-gray-200"></div><input id="c-model" placeholder="Merek & Model" class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('cust')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
+
+  <div id="modal-part" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">Tambah Sparepart</h3><form id="part-form" class="space-y-4"><input id="p-name" placeholder="Nama Sparepart" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="grid grid-cols-3 gap-3"><input id="p-stock" type="number" placeholder="Stok" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="p-min" type="number" placeholder="Min Stok" value="5" class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="p-unit" placeholder="Satuan" required class="w-full px-4 py-3 rounded-xl border border-gray-200"></div><input id="p-price" type="number" placeholder="Harga Jual" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('part')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
+
+  <div id="modal-settle" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"><h3 class="text-xl font-bold mb-4">💰 Pelunasan Hutang</h3><p class="text-sm text-slate-500 mb-4">Pilih metode pembayaran pelunasan:</p><div class="space-y-3 mb-6"><button onclick="confirmSettle('cash')" class="w-full py-3 bg-purple-100 text-purple-700 rounded-xl font-medium hover:bg-purple-200">💵 Tunai Langsung</button><button onclick="confirmSettle('transfer')" class="w-full py-3 bg-blue-100 text-blue-700 rounded-xl font-medium hover:bg-blue-200">🏦 Transfer Bank</button></div><button onclick="closeModal('settle')" class="w-full py-3 border border-gray-200 rounded-xl">Batal</button></div></div>
+
+  <div id="print-area" class="hidden"></div>
 
   <!-- FIREBASE & LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // 🔑 PASTE CONFIG FIREBASE ANDA DI BAWAH INI
+    // 🔑 PASTE CONFIG FIREBASE ANDA DI SINI
     const firebaseConfig = {
       apiKey: "AIzaSyBV5lzmVOF40QoNrq4zpcrytXgeLYjmFkQ",
   authDomain: "je-garage-pro.firebaseapp.com",
@@ -122,157 +203,166 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    let currentUser = null;
+    let user = null, garageId = null, role = 'admin', settleTxId = null;
+    let customersCache = [], txCache = [], partsCache = [], recCache = [];
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('tx-date').value = today;
 
-    // UTILS
-    const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
-    const show = (id) => document.getElementById(id).classList.remove('hidden');
-    const hide = (id) => document.getElementById(id).classList.add('hidden');
+    const fmt = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+    const col = (name) => collection(db, 'garages', garageId, name);
+    const load = async (name, opts={}) => { let q = query(col(name)); if(opts.where) q=query(q, where(opts.where.f,opts.where.op,opts.where.v)); if(opts.order) q=query(q, orderBy(opts.order,'desc')); return (await getDocs(q)).docs.map(d=>({id:d.id,...d.data()})); };
+    const add = async (name, data) => addDoc(col(name), {...data, createdAt: serverTimestamp()});
+    const upd = async (name, id, data) => updateDoc(doc(db,'garages',garageId,name,id), data);
 
-    // AUTH
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        hide('auth-screen'); show('app-screen');
-        loadDashboard(); loadCustomers(); loadTransactions(); loadReceivables();
-      } else {
-        currentUser = null;
-        show('auth-screen'); hide('app-screen');
-      }
+    // AUTH & GARAGE
+    onAuthStateChanged(auth, async (u) => {
+      user = u;
+      if(u) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        const prof = await getDoc(doc(db,'profiles',u.uid));
+        if(prof.exists() && prof.data().garageId) {
+          garageId = prof.data().garageId; role = prof.data().role;
+          await initApp();
+        } else { document.getElementById('garage-screen').classList.remove('hidden'); }
+      } else { document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('garage-screen').classList.add('hidden'); document.getElementById('app-screen').classList.add('hidden'); }
     });
 
-    document.getElementById('login-form').onsubmit = async (e) => {
-      e.preventDefault();
-      try {
-        await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-      } catch (err) {
-        const el = document.getElementById('login-error');
-        el.textContent = err.message.includes('auth/') ? 'Email atau password salah' : 'Gagal masuk';
-        el.classList.remove('hidden');
-      }
-    };
-
+    document.getElementById('login-form').onsubmit = async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(err) { const el=document.getElementById('login-error'); el.textContent='Email/password salah'; el.classList.remove('hidden'); }};
     window.logout = () => signOut(auth);
 
-    // NAVIGATION
-    window.showPage = (id) => {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.querySelectorAll('.nav-btn').forEach(b => {
-        b.classList.remove('bg-amber-500/20', 'text-amber-400', 'border', 'border-amber-500/30');
-        b.classList.add('hover:bg-white/10', 'text-slate-300');
-      });
-      event.target.classList.add('bg-amber-500/20', 'text-amber-400', 'border', 'border-amber-500/30');
-    };
-
-    // FIRESTORE CRUD
-    window.loadData = async (col, filter = {}) => {
-      if (!currentUser) return [];
-      let q = query(collection(db, 'users', currentUser.uid, col));
-      if (filter.where) q = query(q, where(filter.where.field, filter.where.op, filter.where.value));
-      if (filter.order) q = query(q, orderBy(filter.order, 'desc'));
-      return (await getDocs(q)).docs.map(d => ({ id: d.id, ...d.data() }));
-    };
-
-    window.addData = async (col, data) => addDoc(collection(db, 'users', currentUser.uid, col), { ...data, createdAt: serverTimestamp() });
-    window.updateData = async (col, id, data) => updateDoc(doc(db, 'users', currentUser.uid, col, id), data);
-    window.deleteData = async (col, id) => deleteDoc(doc(db, 'users', currentUser.uid, col, id));
-
-    // DASHBOARD
-    async function loadDashboard() {
-      const tx = await loadData('transactions', { order: 'date' });
-      let inc = 0, exp = 0;
-      tx.forEach(t => { if(t.type==='income') inc += t.amount; if(t.type==='expense') exp += t.amount; });
-      const rec = (await loadData('receivables', { where: { field: 'isPaid', op: '==', value: false } })).reduce((s,r) => s+r.amount, 0);
-      document.getElementById('stat-income').textContent = formatRupiah(inc);
-      document.getElementById('stat-expense').textContent = formatRupiah(exp);
-      document.getElementById('stat-receivable').textContent = formatRupiah(rec);
-      document.getElementById('stat-balance').textContent = formatRupiah(inc - exp);
-    }
-
-    // CUSTOMERS
-    async function loadCustomers() {
-      const list = await loadData('customers', { order: 'createdAt' });
-      const container = document.getElementById('customer-list');
-      container.innerHTML = list.length ? list.map(c => `
-        <div class="bg-white p-4 rounded-xl shadow border border-gray-100 fade-in">
-          <h3 class="font-bold truncate">${c.name}</h3>
-          <p class="text-sm text-slate-500">📞 ${c.phone}</p>
-          <button onclick="deleteData('customers','${c.id}').then(()=>loadCustomers())" class="mt-2 text-xs text-red-500 hover:underline">Hapus</button>
-        </div>
-      `).join('') : '<p class="text-slate-400 col-span-3 text-center py-8">Belum ada pelanggan</p>';
-    }
-
-    // TRANSACTIONS
-    async function loadTransactions() {
-      const list = await loadData('transactions', { order: 'date' });
-      const container = document.getElementById('transaction-list');
-      container.innerHTML = list.length ? list.map(t => `
-        <div class="bg-white p-4 rounded-xl shadow border-l-4 ${t.type==='income'?'border-emerald-500':'border-red-500'} fade-in flex justify-between items-center">
-          <div><p class="font-semibold">${t.description}</p><p class="text-xs text-slate-500">${t.category} • ${t.date}</p></div>
-          <p class="font-bold ${t.type==='income'?'text-emerald-600':'text-red-600'}">${formatRupiah(t.amount)}</p>
-        </div>
-      `).join('') : '<p class="text-slate-400 text-center py-8">Belum ada transaksi</p>';
-    }
-
-    // RECEIVABLES
-    async function loadReceivables() {
-      const list = await loadData('receivables', { where: { field: 'isPaid', op: '==', value: false } });
-      const container = document.getElementById('receivable-list');
-      container.innerHTML = list.length ? list.map(r => `
-        <div class="bg-white p-4 rounded-xl shadow border border-amber-200 bg-amber-50/30 fade-in">
-          <p class="font-bold text-lg">${formatRupiah(r.amount)}</p>
-          <p class="text-sm text-slate-600 mt-1">${r.notes || 'Piutang'}</p>
-          <button onclick="updateData('receivables','${r.id}',{isPaid:true}).then(()=>loadReceivables())" class="mt-3 bg-emerald-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-emerald-600">✅ Tandai Lunas</button>
-        </div>
-      `).join('') : '<p class="text-slate-400 text-center py-8">Tidak ada piutang</p>';
-    }
-
-    // MODAL & FORMS
-    window.openModal = (type) => {
-      const form = document.getElementById('modal-form');
-      document.getElementById('modal-title').textContent = type === 'customer' ? 'Tambah Pelanggan' : 'Tambah Transaksi';
-      if (type === 'customer') {
-        form.innerHTML = `
-          <input id="f-name" placeholder="Nama" required class="w-full px-4 py-3 rounded-xl border border-gray-200">
-          <input id="f-phone" placeholder="Telepon" required class="w-full px-4 py-3 rounded-xl border border-gray-200">
-        `;
-      } else {
-        form.innerHTML = `
-          <select id="f-type" class="w-full px-4 py-3 rounded-xl border border-gray-200">
-            <option value="income">Pemasukan</option><option value="expense">Pengeluaran</option>
-          </select>
-          <input id="f-amount" type="number" placeholder="Jumlah" required class="w-full px-4 py-3 rounded-xl border border-gray-200">
-          <input id="f-desc" placeholder="Deskripsi" required class="w-full px-4 py-3 rounded-xl border border-gray-200">
-          <input id="f-date" type="date" required class="w-full px-4 py-3 rounded-xl border border-gray-200">
-        `;
-        document.getElementById('f-date').valueAsDate = new Date();
-      }
-      document.getElementById('modal-submit').onclick = async () => {
-        if (type === 'customer') {
-          await addData('customers', { name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value });
-          loadCustomers();
-        } else {
-          await addData('transactions', {
-            type: document.getElementById('f-type').value,
-            amount: Number(document.getElementById('f-amount').value),
-            description: document.getElementById('f-desc').value,
-            date: document.getElementById('f-date').value,
-            category: 'Umum'
-          });
-          // Auto create receivable if expense
-          if(document.getElementById('f-type').value === 'income' && confirm('Buat piutang untuk transaksi ini?')) {
-            await addData('receivables', { amount: Number(document.getElementById('f-amount').value), notes: document.getElementById('f-desc').value, dueDate: new Date(Date.now()+30*24*60*60*1000).toISOString().split('T')[0], isPaid: false });
-            loadReceivables();
+    window.showGarageForm = type => {
+      const f = document.getElementById('garage-forms'); f.classList.remove('hidden');
+      document.getElementById('g-code').classList.toggle('hidden', type==='create');
+      document.getElementById('g-name').classList.toggle('hidden', type==='join');
+      document.getElementById('g-submit').onclick = async () => {
+        try {
+          if(type==='create') {
+            const id = Math.random().toString(36).substring(2,8).toUpperCase();
+            await setDoc(doc(db,'garages',id), { name: document.getElementById('g-name').value, members: [{uid:user.uid, email:user.email, role:'admin'}], createdAt: serverTimestamp() });
+            await setDoc(doc(db,'profiles',user.uid), { garageId:id, role:'admin' }); garageId=id; role='admin';
+          } else {
+            const code = document.getElementById('g-code').value.trim().toUpperCase();
+            const gSnap = await getDoc(doc(db,'garages',code)); if(!gSnap.exists()) return alert('Kode garage tidak ditemukan!');
+            const g = gSnap.data();
+            if(!g.members.find(m=>m.uid===user.uid)) await updateDoc(doc(db,'garages',code), { members: [...g.members, {uid:user.uid, email:user.email, role:'mekanik'}] });
+            await setDoc(doc(db,'profiles',user.uid), { garageId:code, role:g.members.find(m=>m.uid===user.uid)?.role || 'mekanik' }); garageId=code; role=g.members.find(m=>m.uid===user.uid)?.role || 'mekanik';
           }
-          loadTransactions(); loadDashboard();
-        }
-        closeModal();
+          document.getElementById('garage-screen').classList.add('hidden'); await initApp();
+        } catch(e) { alert('Error: '+e.message); }
       };
-      show('modal');
     };
 
-    window.closeModal = () => hide('modal');
+    async function initApp() {
+      document.getElementById('app-screen').classList.remove('hidden');
+      document.getElementById('sidebar-garage').textContent = (await getDoc(doc(db,'garages',garageId))).data().name;
+      document.getElementById('sidebar-role').textContent = `Role: ${role.toUpperCase()}`;
+      if(role!=='admin') document.querySelectorAll('.admin-only').forEach(el=>el.classList.add('hidden'));
+      document.getElementById('garage-code-display').textContent = garageId;
+      await refreshAll();
+    }
+    window.copyCode = () => { navigator.clipboard.writeText(garageId); alert('Kode disalin!'); };
+    document.getElementById('team-form').onsubmit = async e => { e.preventDefault(); const email=document.getElementById('team-email').value; const r=document.getElementById('team-role').value; const g=await getDoc(doc(db,'garages',garageId)); const m=g.data().members; m.push({email,role:r}); await upd('garages',garageId,{members:m}); e.target.reset(); renderTeam(); };
+    const renderTeam = async () => { const g=await getDoc(doc(db,'garages',garageId)); document.getElementById('team-list').innerHTML=g.data().members.map(m=>`<li class="p-3 flex justify-between"><span>${m.email}</span><span class="px-2 py-1 bg-slate-200 rounded text-xs">${m.role}</span></li>`).join(''); };
+
+    // NAV & MODALS
+    window.nav = id => { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('bg-amber-500/20','text-amber-400','border','border-amber-500/30')); event.target.classList.add('bg-amber-500/20','text-amber-400','border','border-amber-500/30'); };
+    window.openModal = id => document.getElementById(`modal-${id}`).classList.add('open');
+    window.closeModal = id => document.getElementById(`modal-${id}`).classList.remove('open');
+
+    // CRUD
+    document.getElementById('cust-form').onsubmit = async e => { e.preventDefault(); await add('customers',{name:document.getElementById('c-name').value,phone:document.getElementById('c-phone').value,plate:document.getElementById('c-plate').value,year:document.getElementById('c-year').value,model:document.getElementById('c-model').value}); closeModal('cust'); document.getElementById('cust-form').reset(); refreshAll(); };
+    document.getElementById('part-form').onsubmit = async e => { e.preventDefault(); await add('spareparts',{name:document.getElementById('p-name').value,stock:Number(document.getElementById('p-stock').value),minStock:Number(document.getElementById('p-min').value),unit:document.getElementById('p-unit').value,price:Number(document.getElementById('p-price').value)}); closeModal('part'); document.getElementById('part-form').reset(); refreshAll(); };
+
+    // BACKUP EXPORT
+    window.exportCSV = () => { let csv="Nama,Stok,Satuan,Minimum Stok,Harga Jual\n"; partsCache.forEach(p=>csv+=`"${p.name}",${p.stock},"${p.unit}",${p.minStock||0},${p.price}\n`); const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`stok_gudang_${today}.csv`; a.click(); };
+
+    // DYNAMIC FORMS
+    window.addServiceRow = () => { const d=document.createElement('div'); d.className='grid grid-cols-[1fr_80px_30px] gap-2'; d.innerHTML=`<input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; document.getElementById('service-items').appendChild(d); };
+    window.addPartRow = () => { const d=document.createElement('div'); d.className='grid grid-cols-[1fr_1fr_60px_80px_80px_30px] gap-2 items-center mb-2'; d.innerHTML=`<select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)"><option value="gudang">Dari Gudang</option><option value="manual">Manual</option></select><select class="px-2 py-2 rounded-lg border part-select hidden"></select><input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual"><input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartRow(this)"><input type="number" placeholder="Harga" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartRow(this)"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; const sel=d.querySelector('.part-select'); sel.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (${p.stock})</option>`).join(''); sel.onchange=function(){this.parentElement.querySelector('.part-price').value=this.options[this.selectedIndex].dataset.price||'';calcPartRow(this);}; document.getElementById('part-items').appendChild(d); };
+    window.togglePartType = s => { const r=s.parentElement; const g=s.value==='gudang'; r.querySelector('.part-select').classList.toggle('hidden',!g); r.querySelector('.part-manual').classList.toggle('hidden',g); calcPartRow(s); };
+    window.calcPartRow = el => { const r=el.parentElement; const q=Number(r.querySelector('.part-qty').value)||0, p=Number(r.querySelector('.part-price').value)||0; if(r.querySelector('.part-type').value==='gudang') { const max=Number(r.querySelector('.part-select').options[r.querySelector('.part-select').selectedIndex].dataset.stock)||0; r.querySelector('.part-qty').classList.toggle('border-red-500',q>max); } calcTotal(); };
+    window.calcTotal = () => { let j=0,p=0; document.querySelectorAll('.tx-jasa').forEach(i=>j+=Number(i.value)||0); document.querySelectorAll('.part-qty').forEach((q,i)=>p+=(Number(q.value)||0)*(Number(document.querySelectorAll('.part-price')[i]?.value)||0)); document.getElementById('tx-total').value=fmt(j+p); return {j,p}; };
+
+    // SUBMIT TX
+    document.getElementById('tx-form').onsubmit = async e => {
+      e.preventDefault(); const cid=document.getElementById('tx-customer').value; if(!cid)return alert('Pilih pelanggan!');
+      const c=customersCache.find(x=>x.id===cid);
+      const jasa=[]; document.querySelectorAll('#service-items>div').forEach(r=>{const i=r.querySelectorAll('input');if(i[0].value&&Number(i[1].value)>0)jasa.push({name:i[0].value,amount:Number(i[1].value)});});
+      const parts=[]; const stockUpd=[];
+      for(let r of document.querySelectorAll('.part-row')){const t=r.querySelector('.part-type').value,q=Number(r.querySelector('.part-qty').value)||0,p=Number(r.querySelector('.part-price').value)||0;if(q<=0||p<=0)continue;if(t==='gudang'){const id=r.querySelector('.part-select').value,d=partsCache.find(x=>x.id===id);if(!d)continue;if(q>d.stock)return alert(`❌ Stok ${d.name} tidak cukup! (Sisa: ${d.stock})`);parts.push({name:d.name,qty:q,price:p,source:'gudang',partId:id});stockUpd.push({id,q});}else{parts.push({name:r.querySelector('.part-manual').value,qty:q,price:p,source:'manual'});}}
+      if(jasa.length===0&&parts.length===0)return alert('Minimal isi Jasa atau Sparepart!');
+      const pay=document.getElementById('tx-pay').value, tot=calcTotal();
+      const tx={customerId:cid,customerName:c.name,plate:c.plate,jasa,parts,jasaTotal:tot.j,partsTotal:tot.p,total:tot.j+tot.p,payment:pay,date:document.getElementById('tx-date').value,status:pay==='bon'?'belum_lunas':'lunas'};
+      const ref=await add('transactions',tx);
+      if(pay==='bon') await add('receivables',{transactionId:ref.id,customerId:cid,amount:tx.total,status:'unpaid',date:tx.date});
+      for(let s of stockUpd) await upd('spareparts',s.id,{stock:increment(-s.q)});
+      showReceipt(tx,c,ref.id); document.getElementById('tx-form').reset(); document.getElementById('service-items').innerHTML=''; document.getElementById('part-items').innerHTML=''; document.getElementById('tx-date').value=today; calcTotal(); refreshAll();
+    };
+
+    // RENDER
+    const renderCustomers = () => { const el=document.getElementById('cust-list'); el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1">🚗 ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Belum ada</p>'; const sel=document.getElementById('tx-customer'); sel.innerHTML='<option value="">Pilih Pelanggan</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); };
+    const renderWarehouse = () => { document.getElementById('warehouse-list').innerHTML=partsCache.map(p=>`<tr class="hover:bg-slate-50 ${p.stock<=(p.minStock||5)?'alert-row':''}"><td class="p-4 font-medium">${p.name}</td><td class="p-4">${p.unit}</td><td class="p-4 text-right ${p.stock<=(p.minStock||5)?'stock-low':''}">${p.stock}</td><td class="p-4 text-right">${p.minStock||5}</td><td class="p-4 text-right">${fmt(p.price)}</td><td class="p-4 text-center"><button onclick="del('spareparts','${p.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Gudang kosong</td></tr>'; document.querySelectorAll('.part-select').forEach(s=>s.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (${p.stock})</option>`).join('')); };
+    const renderHistory = f => { 
+      const l=txCache.filter(t=>f==='month'?t.date.startsWith(today.slice(0,7)):true);
+      document.getElementById('history-list').innerHTML=l.map(t=>{
+        const d=[...t.jasa.map(j=>`J:${j.name}`),...t.parts.map(p=>`${p.name}x${p.qty}`)].join('<br>');
+        const isUnpaid = t.status==='belum_lunas';
+        const btn = isUnpaid ? `<button onclick="openSettle('${t.id}')" class="btn-sticky bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold hover:bg-emerald-600">💰 LUNASI</button>` : `<span class="text-xs text-emerald-600 font-medium">✅ Lunas</span>`;
+        return `<tr class="${isUnpaid?'bg-amber-50/50':''}"><td class="p-4">${t.date}</td><td class="p-4">${t.customerName}<br><span class="text-xs text-slate-500">${t.plate}</span></td><td class="p-4 text-xs">${d}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-green-100 text-green-700':t.payment==='transfer'?'bg-blue-100 text-blue-700':'bg-amber-100 text-amber-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right font-bold">${fmt(t.total)}</td><td class="p-4 text-center flex flex-col gap-2 items-center">${btn}<button onclick="reprint('${t.id}')" class="text-xs text-amber-600 hover:underline">🖨️ Cetak</button></td></tr>`
+      }).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>'; 
+    };
+    const renderReceivables = async () => { recCache = await load('receivables',{where:{f:'status',op:'==',v:'unpaid'},order:'date'}); document.getElementById('rec-list').innerHTML=recCache.map(x=>`<div class="bg-white p-4 rounded-xl shadow border border-amber-200 bg-amber-50/30 relative"><div class="flex justify-between items-start"><h3 class="font-bold text-lg">${fmt(x.amount)}</h3><span class="text-xs text-amber-700 bg-amber-200 px-2 py-1 rounded">BELUM LUNAS</span></div><p class="text-sm text-slate-600 mt-2">📅 ${x.date}</p><button onclick="openSettle('${x.transactionId}')" class="btn-sticky mt-3 w-full bg-emerald-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-emerald-600">💰 LUNASI HUTANG</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Tidak ada</p>'; };
+    
+    // SETTLE DEBT LOGIC
+    window.openSettle = id => { settleTxId = id; openModal('settle'); };
+    window.confirmSettle = async method => {
+      closeModal('settle');
+      const tx = txCache.find(t=>t.id===settleTxId);
+      if(!tx) return alert('Transaksi tidak ditemukan');
+      try {
+        await upd('transactions', tx.id, { status: 'lunas', settledMethod: method, settledAt: serverTimestamp() });
+        const rec = recCache.find(r=>r.transactionId===tx.id);
+        if(rec) await upd('receivables', rec.id, { status: 'paid', paidAt: serverTimestamp(), paidMethod: method });
+        
+        // Show Settlement Receipt
+        const cust = customersCache.find(c=>c.id===tx.customerId);
+        showSettlementReceipt(tx, cust, method);
+        await refreshAll();
+      } catch(e) { alert('Gagal memproses pelunasan: ' + e.message); }
+    };
+
+    const renderTeam = async () => { const g=await getDoc(doc(db,'garages',garageId)); document.getElementById('team-list').innerHTML=g.data().members.map(m=>`<li class="p-3 flex justify-between"><span>${m.email}</span><span class="px-2 py-1 bg-slate-200 rounded text-xs">${m.role}</span></li>`).join(''); };
+    window.filterReport = f => { renderHistory(f); calcStats(f); };
+    window.reprint = async id => { const t=txCache.find(x=>x.id===id); if(t) showReceipt(t,customersCache.find(x=>x.id===t.customerId),id); };
+    
+    // STATS CALC (Updated for Settlement)
+    const calcStats = f => { 
+      const l=txCache.filter(t=>f==='all'?true:t.date.startsWith(today.slice(0,7))); 
+      let c=0,tr=0,b=0; 
+      l.forEach(t=>{
+        if(t.status==='lunas') {
+          const m = t.settledMethod || t.payment;
+          if(m==='cash') c+=t.total; else if(m==='transfer') tr+=t.total;
+        } else { b+=t.total; }
+      });
+      document.getElementById('d-cash').textContent=fmt(c); document.getElementById('d-transfer').textContent=fmt(tr); document.getElementById('d-balance').textContent=fmt(c+tr); document.getElementById('d-receivables').textContent=fmt(b); 
+      document.getElementById('rep-cash').textContent=fmt(c); document.getElementById('rep-transfer').textContent=fmt(tr); document.getElementById('rep-bon').textContent=fmt(b); 
+    };
+
+    // PRINT & WA
+    window.showReceipt = async (tx,c,id) => { const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #ccc;"><h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><p style="text-align:center;font-size:12px;color:#666;">Nota Service</p><hr/><p><b>Tgl:</b> ${tx.date}<br><b>ID:</b> ${id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:13px;margin:10px 0;"><tr><th style="text-align:left;">Item</th><th style="text-align:right;">Total</th></tr>${tx.jasa.map(j=>`<tr><td>Jasa: ${j.name}</td><td style="text-align:right;">${fmt(j.amount)}</td></tr>`).join('')}${tx.parts.map(p=>`<tr><td>${p.name} x${p.qty}</td><td style="text-align:right;">${fmt(p.price*p.qty)}</td></tr>`).join('')}<tr style="border-top:2px solid #000;"><td><b>TOTAL</b></td><td style="text-align:right;"><b>${fmt(tx.total)}</b></td></tr></table><p><b>Bayar:</b> ${tx.payment.toUpperCase()} | <b>Status:</b> ${tx.status.toUpperCase()}</p><hr/><p style="text-align:center;font-size:11px;">Terima kasih.</p></div>`; document.getElementById('print-area').innerHTML=html; document.getElementById('print-area').classList.remove('hidden'); window.print(); setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000); if(confirm('Kirim nota via WhatsApp?')){let m=`*NOTA SERVICE*\n📅 ${tx.date}\n👤 ${c.name} | 🚗 ${tx.plate}\n\n`; tx.jasa.forEach(j=>m+=`• ${j.name}: ${fmt(j.amount)}\n`); tx.parts.forEach(p=>m+=`• ${p.name}x${p.qty}: ${fmt(p.price*p.qty)}\n`); m+=`\n💰 *TOTAL: ${fmt(tx.total)}*\n💳 ${tx.payment.toUpperCase()} | 📝 ${tx.status.toUpperCase()}\n\nTerima kasih 🙏`; window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`,'_blank');} };
+
+    window.showSettlementReceipt = async (tx,c,method) => { 
+      const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #22c55e;background:#f0fdf4;"><h2 style="text-align:center;margin:0;color:#166534;">✅ PELUNASAN HUTANG</h2><p style="text-align:center;font-size:12px;color:#166534;">Je Garage Pro - Official Receipt</p><hr style="border-color:#22c55e;"/><p><b>Tgl Lunas:</b> ${new Date().toLocaleDateString('id-ID')}<br><b>ID Transaksi:</b> ${tx.id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:14px;margin:10px 0;"><tr><td><b>Total Hutang</b></td><td style="text-align:right;">${fmt(tx.total)}</td></tr><tr><td><b>Dibayar Via</b></td><td style="text-align:right;">${method.toUpperCase()}</td></tr><tr style="border-top:2px solid #166534;"><td><b>STATUS</b></td><td style="text-align:right;color:#166534;"><b>LUNAS ✅</b></td></tr></table><hr style="border-color:#22c55e;"/><p style="text-align:center;font-size:11px;color:#166534;">Terima kasih telah melunasi kewajiban. Dokumen ini sah sebagai bukti pelunasan.</p></div>`; 
+      document.getElementById('print-area').innerHTML=html; document.getElementById('print-area').classList.remove('hidden'); window.print(); setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000);
+      if(confirm('Kirim bukti pelunasan via WhatsApp?')){
+        const m=`*✅ BUKTI PELUNASAN*\n📅 ${new Date().toLocaleDateString('id-ID')}\n👤 ${c.name} | 🚗 ${tx.plate}\n\n💰 *Nominal: ${fmt(tx.total)}*\n💳 *Metode: ${method.toUpperCase()}*\n📝 *Status: LUNAS*\n\nTerima kasih atas kerjasamanya 🙏`; 
+        window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`,'_blank');
+      } 
+    };
+
+    async function refreshAll() { if(!user||!garageId)return; customersCache=await load('customers',{order:'createdAt'}); txCache=await load('transactions',{order:'date'}); partsCache=await load('spareparts',{order:'name'}); renderCustomers(); renderWarehouse(); renderHistory(); renderReceivables(); calcStats(); if(role==='admin') renderTeam(); }
+    window.refreshAll=refreshAll;
   </script>
 </body>
 </html>
