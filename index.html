@@ -74,7 +74,7 @@
         <button onclick="nav('history')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📜 Histori</button>
         <button onclick="nav('reports')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📈 Laporan</button>
         <button onclick="nav('receivables')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📝 Piutang</button>
-        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">️ Pengaturan Tim</button>
+        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">⚙️ Pengaturan Tim</button>
       </nav>
       <button onclick="logout()" class="mt-6 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400">🚪 Logout</button>
     </aside>
@@ -103,17 +103,23 @@
 
       <div id="customers" class="page">
         <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Data Pelanggan & Kendaraan</h2><button onclick="openModal('cust')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">➕ Tambah</button></div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cust-list"></div>
+        <div id="cust-loading" class="text-center py-8 text-slate-500">Memuat data...</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cust-list" style="display:none;"></div>
       </div>
 
       <div id="new-tx" class="page">
         <h2 class="text-2xl font-bold mb-6">Input Service & Sparepart</h2>
         <form id="tx-form" class="bg-white p-6 rounded-2xl shadow space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label class="block text-sm font-medium mb-1">Pilih Pelanggan</label><select id="tx-customer" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required></select></div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Pilih Pelanggan</label>
+              <select id="tx-customer" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required>
+                <option value="">-- Pilih Pelanggan --</option>
+              </select>
+            </div>
             <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="date" id="tx-date" class="w-full px-4 py-3 rounded-xl border border-gray-200" required></div>
           </div>
-          <div class="border-t pt-4"><h3 class="font-semibold mb-2"> Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
+          <div class="border-t pt-4"><h3 class="font-semibold mb-2">🔧 Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
           <div class="border-t pt-4"><h3 class="font-semibold mb-2">📦 Sparepart / Bahan</h3><div id="part-items" class="space-y-2"></div><button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline">+ Tambah Sparepart/Bahan</button></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
             <div><label class="block text-sm font-medium mb-1">Metode Pembayaran</label><select id="tx-pay" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="cash">💵 Tunai</option><option value="transfer">🏦 Transfer Bank</option><option value="bon">📝 Bon / Kredit</option></select></div>
@@ -176,7 +182,7 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    //  PASTE CONFIG FIREBASE ANDA DI SINI
+    // 🔑 PASTE CONFIG FIREBASE ANDA DI SINI
     const firebaseConfig = {
       apiKey: "AIzaSyBV5lzmVOF40QoNrq4zpcrytXgeLYjmFkQ",
   authDomain: "je-garage-pro.firebaseapp.com",
@@ -293,20 +299,22 @@
     document.getElementById('cust-form').onsubmit = async e => { 
       e.preventDefault(); 
       try {
-        await add('customers',{
+        const newCust = {
           name:document.getElementById('c-name').value,
           phone:document.getElementById('c-phone').value,
           plate:document.getElementById('c-plate').value,
           year:document.getElementById('c-year').value,
           model:document.getElementById('c-model').value
-        });
+        };
+        console.log('Saving customer:', newCust);
+        await add('customers', newCust);
         closeModal('cust'); 
         document.getElementById('cust-form').reset(); 
         alert('✅ Pelanggan berhasil disimpan!');
         await refreshAll();
       } catch(err) {
-        console.error(err);
-        alert('❌ Gagal menyimpan pelanggan. Cek console (F12).');
+        console.error('Error saving customer:', err);
+        alert('❌ Gagal menyimpan pelanggan: ' + err.message);
       }
     };
 
@@ -419,6 +427,8 @@
       const cid=document.getElementById('tx-customer').value; 
       if(!cid)return alert('Pilih pelanggan!');
       const c=customersCache.find(x=>x.id===cid);
+      if(!c) return alert('Data pelanggan tidak ditemukan!');
+      
       const jasa=[]; 
       document.querySelectorAll('#service-items>div').forEach(r=>{
         const i=r.querySelectorAll('input');
@@ -461,16 +471,31 @@
         await refreshAll();
       } catch(err) {
         console.error(err);
-        alert('❌ Gagal menyimpan transaksi.');
+        alert('❌ Gagal menyimpan transaksi: ' + err.message);
       }
     };
 
     // RENDER FUNCTIONS
     const renderCustomers = () => { 
       const el=document.getElementById('cust-list'); 
-      el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1"> ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Belum ada pelanggan</p>'; 
+      const loadingEl = document.getElementById('cust-loading');
+      
+      console.log('Rendering customers, count:', customersCache.length);
+      
+      if(customersCache.length === 0) {
+        loadingEl.style.display = 'block';
+        loadingEl.textContent = 'Belum ada pelanggan. Klik tombol "Tambah" untuk menambah data.';
+        el.style.display = 'none';
+      } else {
+        loadingEl.style.display = 'none';
+        el.style.display = 'grid';
+        el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1">🚗 ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('');
+      }
+      
+      // Update dropdown dengan lebar penuh
       const sel=document.getElementById('tx-customer'); 
-      sel.innerHTML='<option value="">Pilih Pelanggan</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); 
+      sel.innerHTML='<option value="">-- Pilih Pelanggan --</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); 
+      console.log('Dropdown updated, options:', sel.options.length);
     };
     
     const renderWarehouse = () => { 
@@ -578,10 +603,10 @@
       window.print(); 
       setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000); 
       if(confirm('Kirim nota via WhatsApp?')){
-        let m=`*NOTA SERVICE*\n📅 ${tx.date}\n👤 ${c.name} |  ${tx.plate}\n\n`; 
+        let m=`*NOTA SERVICE*\n📅 ${tx.date}\n👤 ${c.name} | 🚗 ${tx.plate}\n\n`; 
         tx.jasa.forEach(j=>m+=`• ${j.name}: ${fmt(j.amount)}\n`); 
         tx.parts.forEach(p=>m+=`• ${p.name}x${p.qty}: ${fmt(p.price*p.qty)}\n`); 
-        m+=`\n💰 *TOTAL: ${fmt(tx.total)}*\n💳 ${tx.payment.toUpperCase()} | 📝 ${tx.status.toUpperCase()}\n\nTerima kasih `; 
+        m+=`\n💰 *TOTAL: ${fmt(tx.total)}*\n💳 ${tx.payment.toUpperCase()} | 📝 ${tx.status.toUpperCase()}\n\nTerima kasih 🙏`; 
         window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`,'_blank');
       } 
     };
@@ -600,14 +625,26 @@
 
     // GLOBAL REFRESH (Async Promise.all untuk sinkronisasi data)
     async function refreshAll() { 
-      if(!user||!garageId) return;
+      if(!user||!garageId) {
+        console.log('No user or garageId, skipping refresh');
+        return;
+      }
       try {
+        console.log('Refreshing all data...');
         const [customers, transactions, parts, receivables] = await Promise.all([
           load('customers', {order:'createdAt'}),
           load('transactions', {order:'date'}),
           load('spareparts', {order:'name'}),
           load('receivables', {where:{f:'status',op:'==',v:'unpaid'}, order:'date'})
         ]);
+        
+        console.log('Data loaded:', {
+          customers: customers.length,
+          transactions: transactions.length,
+          parts: parts.length,
+          receivables: receivables.length
+        });
+        
         customersCache = customers;
         txCache = transactions;
         partsCache = parts;
@@ -620,8 +657,11 @@
         renderReceivables();
         calcStats();
         if(role==='admin') renderTeam();
+        
+        console.log('Refresh complete');
       } catch(err) {
         console.error('Refresh error:', err);
+        alert('⚠️ Error memuat data. Cek console (F12) untuk detail.');
       }
     }
     window.refreshAll = refreshAll;
