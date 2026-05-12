@@ -180,7 +180,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, serverTimestamp, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // 🔑 PASTE CONFIG FIREBASE ANDA DI SINI
     const firebaseConfig = {
@@ -203,12 +203,40 @@
 
     const fmt = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
     const col = (name) => collection(db, 'garages', garageId, name);
+    
+    // FUNGSI LOAD YANG DIPERBAIKI (Client-side sorting/filtering to avoid Index Error)
     const load = async (name, opts={}) => { 
-      let q = query(col(name)); 
-      if(opts.where) q=query(q, where(opts.where.f,opts.where.op,opts.where.v)); 
-      if(opts.order) q=query(q, orderBy(opts.order,'desc')); 
-      return (await getDocs(q)).docs.map(d=>({id:d.id,...d.data()})); 
+      // 1. Fetch semua data tanpa filter/orderBy dari server
+      const snapshot = await getDocs(col(name)); 
+      let data = snapshot.docs.map(d=>({id:d.id,...d.data()}));
+      
+      // 2. Filter data di Javascript
+      if(opts.where) {
+        data = data.filter(item => {
+           // Simple equality check
+           return item[opts.where.f] === opts.where.v;
+        });
+      }
+      
+      // 3. Sort data di Javascript
+      if(opts.order) {
+        data.sort((a, b) => {
+          const valA = a[opts.order];
+          const valB = b[opts.order];
+          // Handle Timestamp objects from Firestore
+          if (valA && typeof valA === 'object' && valA.toDate) return valB.toDate() - valA.toDate(); 
+          if (valB && typeof valB === 'object' && valB.toDate) return valB.toDate() - valA.toDate();
+          
+          // Handle strings/numbers
+          if (valA > valB) return -1; // Descending
+          if (valA < valB) return 1;
+          return 0;
+        });
+      }
+      
+      return data; 
     };
+
     const add = async (name, data) => addDoc(col(name), {...data, createdAt: serverTimestamp()});
     const upd = async (name, id, data) => updateDoc(doc(db,'garages',garageId,name,id), data);
     const del = async (name, id) => deleteDoc(doc(db,'garages',garageId,name,id));
@@ -295,7 +323,7 @@
     window.openModal = id => document.getElementById(`modal-${id}`).classList.add('open');
     window.closeModal = id => document.getElementById(`modal-${id}`).classList.remove('open');
 
-    // CRUD HANDLERS (Dengan Error Handling & Alert)
+    // CRUD HANDLERS
     document.getElementById('cust-form').onsubmit = async e => { 
       e.preventDefault(); 
       try {
@@ -306,7 +334,6 @@
           year:document.getElementById('c-year').value,
           model:document.getElementById('c-model').value
         };
-        console.log('Saving customer:', newCust);
         await add('customers', newCust);
         closeModal('cust'); 
         document.getElementById('cust-form').reset(); 
@@ -334,7 +361,7 @@
         await refreshAll();
       } catch(err) {
         console.error(err);
-        alert('❌ Gagal menyimpan sparepart. Pastikan Rules Firestore sudah di-Publish.');
+        alert('❌ Gagal menyimpan sparepart.');
       }
     };
 
@@ -480,8 +507,6 @@
       const el=document.getElementById('cust-list'); 
       const loadingEl = document.getElementById('cust-loading');
       
-      console.log('Rendering customers, count:', customersCache.length);
-      
       if(customersCache.length === 0) {
         loadingEl.style.display = 'block';
         loadingEl.textContent = 'Belum ada pelanggan. Klik tombol "Tambah" untuk menambah data.';
@@ -492,10 +517,9 @@
         el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1">🚗 ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('');
       }
       
-      // Update dropdown dengan lebar penuh
+      // Update dropdown
       const sel=document.getElementById('tx-customer'); 
       sel.innerHTML='<option value="">-- Pilih Pelanggan --</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); 
-      console.log('Dropdown updated, options:', sel.options.length);
     };
     
     const renderWarehouse = () => { 
@@ -522,7 +546,7 @@
       document.getElementById('rec-list').innerHTML=recCache.map(x=>`<div class="bg-white p-4 rounded-xl shadow border border-amber-200 bg-amber-50/30 relative"><div class="flex justify-between items-start"><h3 class="font-bold text-lg">${fmt(x.amount)}</h3><span class="text-xs text-amber-700 bg-amber-200 px-2 py-1 rounded">BELUM LUNAS</span></div><p class="text-sm text-slate-600 mt-2">📅 ${x.date}</p><button onclick="openSettle('${x.transactionId}')" class="btn-sticky mt-3 w-full bg-emerald-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-emerald-600">💰 LUNASI HUTANG</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Tidak ada piutang</p>'; 
     };
     
-    // SETTLE DEBT LOGIC (PARTIAL SUPPORT)
+    // SETTLE DEBT LOGIC
     window.openSettle = id => { 
       settleTxId = id; 
       const tx = txCache.find(t=>t.id===id);
@@ -570,7 +594,7 @@
     window.filterReport = f => { renderHistory(f); calcStats(f); };
     window.reprint = async id => { const t=txCache.find(x=>x.id===id); if(t) showReceipt(t,customersCache.find(x=>x.id===t.customerId),id); };
     
-    // STATS CALC (CASH VS BANK + EXPENSES)
+    // STATS CALC
     const calcStats = f => { 
       const income = txCache.filter(t=>t.type==='income'&&(f==='all'?true:t.date.startsWith(today.slice(0,7))));
       const expenses = txCache.filter(t=>t.type==='expense'&&t.category==='operational'&&(f==='all'?true:t.date.startsWith(today.slice(0,7))));
@@ -623,28 +647,16 @@
       } 
     };
 
-    // GLOBAL REFRESH (Async Promise.all untuk sinkronisasi data)
+    // GLOBAL REFRESH
     async function refreshAll() { 
-      if(!user||!garageId) {
-        console.log('No user or garageId, skipping refresh');
-        return;
-      }
+      if(!user||!garageId) return;
       try {
-        console.log('Refreshing all data...');
         const [customers, transactions, parts, receivables] = await Promise.all([
           load('customers', {order:'createdAt'}),
           load('transactions', {order:'date'}),
           load('spareparts', {order:'name'}),
           load('receivables', {where:{f:'status',op:'==',v:'unpaid'}, order:'date'})
         ]);
-        
-        console.log('Data loaded:', {
-          customers: customers.length,
-          transactions: transactions.length,
-          parts: parts.length,
-          receivables: receivables.length
-        });
-        
         customersCache = customers;
         txCache = transactions;
         partsCache = parts;
@@ -657,11 +669,8 @@
         renderReceivables();
         calcStats();
         if(role==='admin') renderTeam();
-        
-        console.log('Refresh complete');
       } catch(err) {
         console.error('Refresh error:', err);
-        alert('⚠️ Error memuat data. Cek console (F12) untuk detail.');
       }
     }
     window.refreshAll = refreshAll;
