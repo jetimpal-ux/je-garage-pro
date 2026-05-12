@@ -74,7 +74,7 @@
         <button onclick="nav('history')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📜 Histori</button>
         <button onclick="nav('reports')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📈 Laporan</button>
         <button onclick="nav('receivables')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📝 Piutang</button>
-        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">⚙️ Pengaturan Tim</button>
+        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">️ Pengaturan Tim</button>
       </nav>
       <button onclick="logout()" class="mt-6 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400">🚪 Logout</button>
     </aside>
@@ -83,8 +83,8 @@
       <div id="dashboard" class="page active">
         <h2 class="text-2xl font-bold mb-6">Dashboard Keuangan</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-emerald-500"><p class="text-sm text-slate-500">Saldo Kas Tunai</p><p id="d-cash" class="text-xl font-bold text-purple-600">Rp 0</p></div>
-          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-blue-500"><p class="text-sm text-slate-500">Saldo Bank Transfer</p><p id="d-bank" class="text-xl font-bold text-blue-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-purple-500"><p class="text-sm text-slate-500">Kas Tunai Bersih</p><p id="d-cash" class="text-xl font-bold text-purple-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-blue-500"><p class="text-sm text-slate-500">Saldo Bank Bersih</p><p id="d-bank" class="text-xl font-bold text-blue-600">Rp 0</p></div>
           <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-amber-500"><p class="text-sm text-slate-500">Sisa Piutang</p><p id="d-receivables" class="text-xl font-bold text-amber-600">Rp 0</p></div>
           <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-red-500"><p class="text-sm text-slate-500">Total Operasional</p><p id="d-expenses" class="text-xl font-bold text-red-600">Rp 0</p></div>
         </div>
@@ -113,7 +113,7 @@
             <div><label class="block text-sm font-medium mb-1">Pilih Pelanggan</label><select id="tx-customer" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required></select></div>
             <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="date" id="tx-date" class="w-full px-4 py-3 rounded-xl border border-gray-200" required></div>
           </div>
-          <div class="border-t pt-4"><h3 class="font-semibold mb-2">🔧 Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
+          <div class="border-t pt-4"><h3 class="font-semibold mb-2"> Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
           <div class="border-t pt-4"><h3 class="font-semibold mb-2">📦 Sparepart / Bahan</h3><div id="part-items" class="space-y-2"></div><button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline">+ Tambah Sparepart/Bahan</button></div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
             <div><label class="block text-sm font-medium mb-1">Metode Pembayaran</label><select id="tx-pay" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="cash">💵 Tunai</option><option value="transfer">🏦 Transfer Bank</option><option value="bon">📝 Bon / Kredit</option></select></div>
@@ -141,9 +141,9 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">💰 Pemasukan</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Masuk</span><span id="rep-cash-in" class="font-bold text-purple-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Masuk</span><span id="rep-bank-in" class="font-bold text-blue-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Masuk</span><span id="rep-total-in">Rp 0</span></div></div>
-          <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3"> Pengeluaran Operasional</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Keluar</span><span id="rep-cash-out" class="font-bold text-red-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Keluar</span><span id="rep-bank-out" class="font-bold text-red-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Keluar</span><span id="rep-total-out">Rp 0</span></div></div>
+          <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">💸 Pengeluaran Operasional</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Keluar</span><span id="rep-cash-out" class="font-bold text-red-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Keluar</span><span id="rep-bank-out" class="font-bold text-red-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Keluar</span><span id="rep-total-out">Rp 0</span></div></div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3"> Saldo Riil</h3><div class="grid grid-cols-2 gap-4"><div class="flex justify-between"><span>Kas Tunai Bersih</span><span id="rep-net-cash" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between"><span>Saldo Bank Bersih</span><span id="rep-net-bank" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between col-span-2 border-t pt-3"><span>Sisa Piutang (Belum Lunas)</span><span id="rep-unpaid" class="font-bold text-amber-600">Rp 0</span></div></div></div>
+        <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">💵 Saldo Riil</h3><div class="grid grid-cols-2 gap-4"><div class="flex justify-between"><span>Kas Tunai Bersih</span><span id="rep-net-cash" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between"><span>Saldo Bank Bersih</span><span id="rep-net-bank" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between col-span-2 border-t pt-3"><span>Sisa Piutang (Belum Lunas)</span><span id="rep-unpaid" class="font-bold text-amber-600">Rp 0</span></div></div></div>
       </div>
 
       <div id="receivables" class="page">
@@ -153,7 +153,7 @@
 
       <div id="settings" class="page admin-only hidden">
         <h2 class="text-2xl font-bold mb-6">⚙️ Pengaturan Tim & Garage</h2>
-        <div class="bg-white p-6 rounded-2xl shadow mb-6"><h3 class="font-semibold mb-4">Kode Garage</h3><div class="flex items-center gap-3 bg-slate-100 p-3 rounded-lg"><code id="garage-code-display" class="flex-1 font-mono text-lg text-center">LOADING...</code><button onclick="copyCode()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"> Copy</button></div></div>
+        <div class="bg-white p-6 rounded-2xl shadow mb-6"><h3 class="font-semibold mb-4">Kode Garage</h3><div class="flex items-center gap-3 bg-slate-100 p-3 rounded-lg"><code id="garage-code-display" class="flex-1 font-mono text-lg text-center">LOADING...</code><button onclick="copyCode()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700">📋 Copy</button></div></div>
         <div class="bg-white p-6 rounded-2xl shadow"><h3 class="font-semibold mb-4">Daftar Anggota</h3><form id="team-form" class="flex gap-2 mb-4"><input id="team-email" type="email" placeholder="Email anggota baru" required class="flex-1 px-3 py-2 rounded-lg border"><select id="team-role" class="px-3 py-2 rounded-lg border"><option value="mekanik">Mekanik</option><option value="kasir">Kasir</option><option value="admin">Admin</option></select><button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">Tambah</button></form><ul id="team-list" class="divide-y"></ul></div>
       </div>
     </main>
@@ -176,7 +176,7 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // 🔑 PASTE CONFIG FIREBASE ANDA DI SINI
+    //  PASTE CONFIG FIREBASE ANDA DI SINI
     const firebaseConfig = {
       apiKey: "AIzaSyBV5lzmVOF40QoNrq4zpcrytXgeLYjmFkQ",
   authDomain: "je-garage-pro.firebaseapp.com",
@@ -190,15 +190,22 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     let user = null, garageId = null, role = 'admin', settleTxId = null;
-    let customersCache = [], txCache = [], partsCache = [], recCache = [], expCache = [];
+    let customersCache = [], txCache = [], partsCache = [], recCache = [];
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('tx-date').value = today; document.getElementById('e-date').value = today;
+    document.getElementById('tx-date').value = today; 
+    document.getElementById('e-date').value = today;
 
     const fmt = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
     const col = (name) => collection(db, 'garages', garageId, name);
-    const load = async (name, opts={}) => { let q = query(col(name)); if(opts.where) q=query(q, where(opts.where.f,opts.where.op,opts.where.v)); if(opts.order) q=query(q, orderBy(opts.order,'desc')); return (await getDocs(q)).docs.map(d=>({id:d.id,...d.data()})); };
+    const load = async (name, opts={}) => { 
+      let q = query(col(name)); 
+      if(opts.where) q=query(q, where(opts.where.f,opts.where.op,opts.where.v)); 
+      if(opts.order) q=query(q, orderBy(opts.order,'desc')); 
+      return (await getDocs(q)).docs.map(d=>({id:d.id,...d.data()})); 
+    };
     const add = async (name, data) => addDoc(col(name), {...data, createdAt: serverTimestamp()});
     const upd = async (name, id, data) => updateDoc(doc(db,'garages',garageId,name,id), data);
+    const del = async (name, id) => deleteDoc(doc(db,'garages',garageId,name,id));
 
     // AUTH & GARAGE
     onAuthStateChanged(auth, async (u) => {
@@ -213,7 +220,16 @@
       } else { document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('garage-screen').classList.add('hidden'); document.getElementById('app-screen').classList.add('hidden'); }
     });
 
-    document.getElementById('login-form').onsubmit = async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(err) { const el=document.getElementById('login-error'); el.textContent='Email/password salah'; el.classList.remove('hidden'); }};
+    document.getElementById('login-form').onsubmit = async e => { 
+      e.preventDefault(); 
+      try { 
+        await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); 
+      } catch(err) { 
+        const el=document.getElementById('login-error'); 
+        el.textContent='Email/password salah'; 
+        el.classList.remove('hidden'); 
+      } 
+    };
     window.logout = () => signOut(auth);
 
     window.showGarageForm = type => {
@@ -247,62 +263,226 @@
       await refreshAll();
     }
     window.copyCode = () => { navigator.clipboard.writeText(garageId); alert('Kode disalin!'); };
-    document.getElementById('team-form').onsubmit = async e => { e.preventDefault(); const email=document.getElementById('team-email').value; const r=document.getElementById('team-role').value; const g=await getDoc(doc(db,'garages',garageId)); const m=g.data().members; m.push({email,role:r}); await upd('garages',garageId,{members:m}); e.target.reset(); renderTeam(); };
-    const renderTeam = async () => { const g=await getDoc(doc(db,'garages',garageId)); document.getElementById('team-list').innerHTML=g.data().members.map(m=>`<li class="p-3 flex justify-between"><span>${m.email}</span><span class="px-2 py-1 bg-slate-200 rounded text-xs">${m.role}</span></li>`).join(''); };
+    document.getElementById('team-form').onsubmit = async e => { 
+      e.preventDefault(); 
+      const email=document.getElementById('team-email').value; 
+      const r=document.getElementById('team-role').value; 
+      const g=await getDoc(doc(db,'garages',garageId)); 
+      const m=g.data().members; 
+      m.push({email,role:r}); 
+      await upd('garages',garageId,{members:m}); 
+      e.target.reset(); 
+      renderTeam(); 
+    };
+    const renderTeam = async () => { 
+      const g=await getDoc(doc(db,'garages',garageId)); 
+      document.getElementById('team-list').innerHTML=g.data().members.map(m=>`<li class="p-3 flex justify-between"><span>${m.email}</span><span class="px-2 py-1 bg-slate-200 rounded text-xs">${m.role}</span></li>`).join(''); 
+    };
 
     // NAV & MODALS
-    window.nav = id => { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('bg-amber-500/20','text-amber-400','border','border-amber-500/30')); event.target.classList.add('bg-amber-500/20','text-amber-400','border','border-amber-500/30'); };
+    window.nav = id => { 
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); 
+      document.getElementById(id).classList.add('active'); 
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('bg-amber-500/20','text-amber-400','border','border-amber-500/30')); 
+      event.target.classList.add('bg-amber-500/20','text-amber-400','border','border-amber-500/30'); 
+    };
     window.openModal = id => document.getElementById(`modal-${id}`).classList.add('open');
     window.closeModal = id => document.getElementById(`modal-${id}`).classList.remove('open');
 
-    // CRUD
-    document.getElementById('cust-form').onsubmit = async e => { e.preventDefault(); await add('customers',{name:document.getElementById('c-name').value,phone:document.getElementById('c-phone').value,plate:document.getElementById('c-plate').value,year:document.getElementById('c-year').value,model:document.getElementById('c-model').value}); closeModal('cust'); document.getElementById('cust-form').reset(); refreshAll(); };
-    document.getElementById('part-form').onsubmit = async e => { e.preventDefault(); await add('spareparts',{name:document.getElementById('p-name').value,stock:Number(document.getElementById('p-stock').value),minStock:Number(document.getElementById('p-min').value),unit:document.getElementById('p-unit').value,price:Number(document.getElementById('p-price').value)}); closeModal('part'); document.getElementById('part-form').reset(); refreshAll(); };
-    document.getElementById('expense-form').onsubmit = async e => { e.preventDefault(); await add('transactions',{type:'expense',category:'operational',description:document.getElementById('e-desc').value,amount:Number(document.getElementById('e-amount').value),payment:document.getElementById('e-method').value,date:document.getElementById('e-date').value}); closeModal('expense'); document.getElementById('expense-form').reset(); document.getElementById('e-date').value=today; refreshAll(); };
+    // CRUD HANDLERS (Dengan Error Handling & Alert)
+    document.getElementById('cust-form').onsubmit = async e => { 
+      e.preventDefault(); 
+      try {
+        await add('customers',{
+          name:document.getElementById('c-name').value,
+          phone:document.getElementById('c-phone').value,
+          plate:document.getElementById('c-plate').value,
+          year:document.getElementById('c-year').value,
+          model:document.getElementById('c-model').value
+        });
+        closeModal('cust'); 
+        document.getElementById('cust-form').reset(); 
+        alert('✅ Pelanggan berhasil disimpan!');
+        await refreshAll();
+      } catch(err) {
+        console.error(err);
+        alert('❌ Gagal menyimpan pelanggan. Cek console (F12).');
+      }
+    };
+
+    document.getElementById('part-form').onsubmit = async e => { 
+      e.preventDefault(); 
+      try {
+        await add('spareparts',{
+          name:document.getElementById('p-name').value,
+          stock:Number(document.getElementById('p-stock').value),
+          minStock:Number(document.getElementById('p-min').value),
+          unit:document.getElementById('p-unit').value,
+          price:Number(document.getElementById('p-price').value)
+        });
+        closeModal('part'); 
+        document.getElementById('part-form').reset(); 
+        alert('✅ Sparepart berhasil ditambahkan ke gudang!');
+        await refreshAll();
+      } catch(err) {
+        console.error(err);
+        alert('❌ Gagal menyimpan sparepart. Pastikan Rules Firestore sudah di-Publish.');
+      }
+    };
+
+    document.getElementById('expense-form').onsubmit = async e => { 
+      e.preventDefault(); 
+      try {
+        await add('transactions',{
+          type:'expense',
+          category:'operational',
+          description:document.getElementById('e-desc').value,
+          amount:Number(document.getElementById('e-amount').value),
+          payment:document.getElementById('e-method').value,
+          date:document.getElementById('e-date').value
+        });
+        closeModal('expense'); 
+        document.getElementById('expense-form').reset(); 
+        document.getElementById('e-date').value = today;
+        alert('✅ Pengeluaran operasional tercatat!');
+        await refreshAll();
+      } catch(err) {
+        console.error(err);
+        alert('❌ Gagal mencatat pengeluaran.');
+      }
+    };
 
     // BACKUP EXPORT
-    window.exportCSV = () => { let csv="Nama,Stok,Satuan,Minimum Stok,Harga Jual\n"; partsCache.forEach(p=>csv+=`"${p.name}",${p.stock},"${p.unit}",${p.minStock||0},${p.price}\n`); const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`stok_gudang_${today}.csv`; a.click(); };
+    window.exportCSV = () => { 
+      let csv="Nama,Stok,Satuan,Minimum Stok,Harga Jual\n"; 
+      partsCache.forEach(p=>csv+=`"${p.name}",${p.stock},"${p.unit}",${p.minStock||0},${p.price}\n`); 
+      const blob=new Blob([csv],{type:'text/csv'}); 
+      const a=document.createElement('a'); 
+      a.href=URL.createObjectURL(blob); 
+      a.download=`stok_gudang_${today}.csv`; 
+      a.click(); 
+    };
 
     // DYNAMIC FORMS & AUTO-CALC
-    window.addServiceRow = () => { const d=document.createElement('div'); d.className='grid grid-cols-[1fr_80px_30px] gap-2'; d.innerHTML=`<input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; document.getElementById('service-items').appendChild(d); };
+    window.addServiceRow = () => { 
+      const d=document.createElement('div'); 
+      d.className='grid grid-cols-[1fr_80px_30px] gap-2'; 
+      d.innerHTML=`<input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; 
+      document.getElementById('service-items').appendChild(d); 
+    };
+    
     window.addPartRow = () => { 
-      const d=document.createElement('div'); d.className='grid grid-cols-[1fr_80px_60px_80px_30px] gap-2 items-center mb-2'; 
-      d.innerHTML=`<select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)"><option value="gudang">Dari Gudang</option><option value="manual">Manual</option></select>
-      <select class="px-2 py-2 rounded-lg border part-select hidden"></select>
-      <input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual">
-      <input type="number" placeholder="Harga Satuan" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartSubtotal(this)">
-      <input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartSubtotal(this)">
-      <input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700">
-      <button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; 
+      const d=document.createElement('div'); 
+      d.className='grid grid-cols-[1fr_80px_60px_80px_30px] gap-2 items-center mb-2'; 
+      d.innerHTML=`
+        <select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)">
+          <option value="gudang">Dari Gudang</option><option value="manual">Manual</option>
+        </select>
+        <select class="px-2 py-2 rounded-lg border part-select hidden"></select>
+        <input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual">
+        <input type="number" placeholder="Harga Satuan" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartSubtotal(this)">
+        <input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartSubtotal(this)">
+        <input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700">
+        <button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; 
       const sel=d.querySelector('.part-select'); 
       sel.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (${p.stock})</option>`).join(''); 
       sel.onchange=function(){this.parentElement.querySelector('.part-price').value=this.options[this.selectedIndex].dataset.price||'';calcPartSubtotal(this);}; 
       document.getElementById('part-items').appendChild(d); 
     };
-    window.togglePartType = s => { const r=s.parentElement; const g=s.value==='gudang'; r.querySelector('.part-select').classList.toggle('hidden',!g); r.querySelector('.part-manual').classList.toggle('hidden',g); calcPartSubtotal(s); };
-    window.calcPartSubtotal = el => { const r=el.parentElement; const q=Number(r.querySelector('.part-qty').value)||0, p=Number(r.querySelector('.part-price').value)||0; r.querySelector('.part-sub').value=fmt(q*p); calcTotal(); };
-    window.calcTotal = () => { let j=0,p=0; document.querySelectorAll('.tx-jasa').forEach(i=>j+=Number(i.value)||0); document.querySelectorAll('.part-sub').forEach(s=>p+=Number(s.value.replace(/[^\d]/g,''))||0); document.getElementById('tx-total').value=fmt(j+p); return {j,p}; };
+    
+    window.togglePartType = s => { 
+      const r=s.parentElement; 
+      const g=s.value==='gudang'; 
+      r.querySelector('.part-select').classList.toggle('hidden',!g); 
+      r.querySelector('.part-manual').classList.toggle('hidden',g); 
+      calcPartSubtotal(s); 
+    };
+    
+    window.calcPartSubtotal = el => { 
+      const r=el.parentElement; 
+      const q=Number(r.querySelector('.part-qty').value)||0, p=Number(r.querySelector('.part-price').value)||0; 
+      r.querySelector('.part-sub').value=fmt(q*p); 
+      calcTotal(); 
+    };
+    
+    window.calcTotal = () => { 
+      let j=0,p=0; 
+      document.querySelectorAll('.tx-jasa').forEach(i=>j+=Number(i.value)||0); 
+      document.querySelectorAll('.part-sub').forEach(s=>p+=Number(s.value.replace(/[^\d]/g,''))||0); 
+      document.getElementById('tx-total').value=fmt(j+p); 
+      return {j,p}; 
+    };
 
     // SUBMIT TX
     document.getElementById('tx-form').onsubmit = async e => {
-      e.preventDefault(); const cid=document.getElementById('tx-customer').value; if(!cid)return alert('Pilih pelanggan!');
+      e.preventDefault(); 
+      const cid=document.getElementById('tx-customer').value; 
+      if(!cid)return alert('Pilih pelanggan!');
       const c=customersCache.find(x=>x.id===cid);
-      const jasa=[]; document.querySelectorAll('#service-items>div').forEach(r=>{const i=r.querySelectorAll('input');if(i[0].value&&Number(i[1].value)>0)jasa.push({name:i[0].value,amount:Number(i[1].value)});});
+      const jasa=[]; 
+      document.querySelectorAll('#service-items>div').forEach(r=>{
+        const i=r.querySelectorAll('input');
+        if(i[0].value&&Number(i[1].value)>0) jasa.push({name:i[0].value,amount:Number(i[1].value)});
+      });
       const parts=[]; const stockUpd=[];
-      for(let r of document.querySelectorAll('.part-row')){const t=r.querySelector('.part-type').value,q=Number(r.querySelector('.part-qty').value)||0,p=Number(r.querySelector('.part-price').value)||0;if(q<=0||p<=0)continue;if(t==='gudang'){const id=r.querySelector('.part-select').value,d=partsCache.find(x=>x.id===id);if(!d)continue;if(q>d.stock)return alert(`❌ Stok ${d.name} tidak cukup! (Sisa: ${d.stock})`);parts.push({name:d.name,qty:q,price:p,source:'gudang',partId:id});stockUpd.push({id,q});}else{parts.push({name:r.querySelector('.part-manual').value,qty:q,price:p,source:'manual'});}}
+      for(let r of document.querySelectorAll('.part-row')){
+        const t=r.querySelector('.part-type').value,q=Number(r.querySelector('.part-qty').value)||0,p=Number(r.querySelector('.part-price').value)||0;
+        if(q<=0||p<=0)continue;
+        if(t==='gudang'){
+          const id=r.querySelector('.part-select').value,d=partsCache.find(x=>x.id===id);
+          if(!d)continue;
+          if(q>d.stock)return alert(`❌ Stok ${d.name} tidak cukup! (Sisa: ${d.stock})`);
+          parts.push({name:d.name,qty:q,price:p,source:'gudang',partId:id});
+          stockUpd.push({id,q});
+        } else {
+          parts.push({name:r.querySelector('.part-manual').value,qty:q,price:p,source:'manual'});
+        }
+      }
       if(jasa.length===0&&parts.length===0)return alert('Minimal isi Jasa atau Sparepart!');
       const pay=document.getElementById('tx-pay').value, tot=calcTotal();
-      const tx={type:'income',customerId:cid,customerName:c.name,plate:c.plate,jasa,parts,jasaTotal:tot.j,partsTotal:tot.p,total:tot.j+tot.p,payment:pay,date:document.getElementById('tx-date').value,status:pay==='bon'?'belum_lunas':'lunas',paidAmount:0,remainingAmount:tot.j+tot.p};
-      const ref=await add('transactions',tx);
-      if(pay==='bon') await add('receivables',{transactionId:ref.id,customerId:cid,amount:tx.total,status:'unpaid',date:tx.date});
-      for(let s of stockUpd) await upd('spareparts',s.id,{stock:increment(-s.q)});
-      showReceipt(tx,c,ref.id); document.getElementById('tx-form').reset(); document.getElementById('service-items').innerHTML=''; document.getElementById('part-items').innerHTML=''; document.getElementById('tx-date').value=today; calcTotal(); refreshAll();
+      const tx={
+        type:'income',customerId:cid,customerName:c.name,plate:c.plate,
+        jasa,parts,jasaTotal:tot.j,partsTotal:tot.p,total:tot.j+tot.p,
+        payment:pay,date:document.getElementById('tx-date').value,
+        status:pay==='bon'?'belum_lunas':'lunas',
+        paidAmount:0,remainingAmount:tot.j+tot.p
+      };
+      try {
+        const ref=await add('transactions',tx);
+        if(pay==='bon') await add('receivables',{transactionId:ref.id,customerId:cid,amount:tx.total,status:'unpaid',date:tx.date});
+        for(let s of stockUpd) await upd('spareparts',s.id,{stock:increment(-s.q)});
+        showReceipt(tx,c,ref.id); 
+        document.getElementById('tx-form').reset(); 
+        document.getElementById('service-items').innerHTML=''; 
+        document.getElementById('part-items').innerHTML=''; 
+        document.getElementById('tx-date').value=today; 
+        calcTotal(); 
+        alert('✅ Transaksi berhasil disimpan!');
+        await refreshAll();
+      } catch(err) {
+        console.error(err);
+        alert('❌ Gagal menyimpan transaksi.');
+      }
     };
 
-    // RENDER
-    const renderCustomers = () => { const el=document.getElementById('cust-list'); el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1">🚗 ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Belum ada</p>'; const sel=document.getElementById('tx-customer'); sel.innerHTML='<option value="">Pilih Pelanggan</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); };
-    const renderWarehouse = () => { document.getElementById('warehouse-list').innerHTML=partsCache.map(p=>`<tr class="hover:bg-slate-50 ${p.stock<=(p.minStock||5)?'alert-row':''}"><td class="p-4 font-medium">${p.name}</td><td class="p-4">${p.unit}</td><td class="p-4 text-right ${p.stock<=(p.minStock||5)?'stock-low':''}">${p.stock}</td><td class="p-4 text-right">${p.minStock||5}</td><td class="p-4 text-right">${fmt(p.price)}</td><td class="p-4 text-center"><button onclick="del('spareparts','${p.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Gudang kosong</td></tr>'; document.querySelectorAll('.part-select').forEach(s=>s.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (${p.stock})</option>`).join('')); };
-    const renderExpenses = () => { const list=expCache.filter(t=>t.type==='expense'&&t.category==='operational'); document.getElementById('expense-list').innerHTML=list.map(t=>`<tr><td class="p-4">${t.date}</td><td class="p-4 capitalize">${t.description||'-'}</td><td class="p-4 text-xs text-slate-500">${t.category}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-purple-100 text-purple-700':'bg-blue-100 text-blue-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right font-bold text-red-600">${fmt(t.amount)}</td><td class="p-4 text-center"><button onclick="del('transactions','${t.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pengeluaran</td></tr>'; };
+    // RENDER FUNCTIONS
+    const renderCustomers = () => { 
+      const el=document.getElementById('cust-list'); 
+      el.innerHTML=customersCache.map(c=>`<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">${c.name}</h3><p class="text-slate-600 text-sm">📞 ${c.phone}</p><p class="text-slate-600 text-sm mt-1"> ${c.plate} | ${c.model} ${c.year}</p><button onclick="del('customers','${c.id}')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Belum ada pelanggan</p>'; 
+      const sel=document.getElementById('tx-customer'); 
+      sel.innerHTML='<option value="">Pilih Pelanggan</option>'+customersCache.map(c=>`<option value="${c.id}">${c.name} - ${c.plate}</option>`).join(''); 
+    };
+    
+    const renderWarehouse = () => { 
+      document.getElementById('warehouse-list').innerHTML=partsCache.map(p=>`<tr class="hover:bg-slate-50 ${p.stock<=(p.minStock||5)?'alert-row':''}"><td class="p-4 font-medium">${p.name}</td><td class="p-4">${p.unit}</td><td class="p-4 text-right ${p.stock<=(p.minStock||5)?'stock-low':''}">${p.stock}</td><td class="p-4 text-right">${p.minStock||5}</td><td class="p-4 text-right">${fmt(p.price)}</td><td class="p-4 text-center"><button onclick="del('spareparts','${p.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Gudang kosong</td></tr>'; 
+      document.querySelectorAll('.part-select').forEach(s=>s.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (${p.stock})</option>`).join('')); 
+    };
+    
+    const renderExpenses = () => { 
+      const list=txCache.filter(t=>t.type==='expense'&&t.category==='operational'); 
+      document.getElementById('expense-list').innerHTML=list.map(t=>`<tr><td class="p-4">${t.date}</td><td class="p-4 capitalize">${t.description||'-'}</td><td class="p-4 text-xs text-slate-500">${t.category}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-purple-100 text-purple-700':'bg-blue-100 text-blue-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right font-bold text-red-600">${fmt(t.amount)}</td><td class="p-4 text-center"><button onclick="del('transactions','${t.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pengeluaran</td></tr>'; 
+    };
+    
     const renderHistory = f => { 
       const l=txCache.filter(t=>t.type==='income'&&(f==='month'?t.date.startsWith(today.slice(0,7)):true));
       document.getElementById('history-list').innerHTML=l.map(t=>{
@@ -312,10 +492,13 @@
         return `<tr class="${isUnpaid?'bg-amber-50/50':''}"><td class="p-4">${t.date}</td><td class="p-4">${t.customerName}<br><span class="text-xs text-slate-500">${t.plate}</span></td><td class="p-4 text-xs">${d}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-green-100 text-green-700':t.payment==='transfer'?'bg-blue-100 text-blue-700':'bg-amber-100 text-amber-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right"><div class="text-sm">Total: ${fmt(t.total)}</div><div class="text-xs ${isUnpaid?'text-red-600 font-bold':'text-emerald-600'}">Sisa: ${fmt(t.remainingAmount)}</div></td><td class="p-4 text-center flex flex-col gap-2 items-center">${btn}<button onclick="reprint('${t.id}')" class="text-xs text-amber-600 hover:underline">🖨️ Cetak</button></td></tr>`
       }).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>'; 
     };
-    const renderReceivables = async () => { recCache = await load('receivables',{where:{f:'status',op:'==',v:'unpaid'},order:'date'}); document.getElementById('rec-list').innerHTML=recCache.map(x=>`<div class="bg-white p-4 rounded-xl shadow border border-amber-200 bg-amber-50/30 relative"><div class="flex justify-between items-start"><h3 class="font-bold text-lg">${fmt(x.amount)}</h3><span class="text-xs text-amber-700 bg-amber-200 px-2 py-1 rounded">BELUM LUNAS</span></div><p class="text-sm text-slate-600 mt-2"> ${x.date}</p><button onclick="openSettle('${x.transactionId}')" class="btn-sticky mt-3 w-full bg-emerald-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-emerald-600">💰 LUNASI HUTANG</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Tidak ada</p>'; };
+    
+    const renderReceivables = () => { 
+      document.getElementById('rec-list').innerHTML=recCache.map(x=>`<div class="bg-white p-4 rounded-xl shadow border border-amber-200 bg-amber-50/30 relative"><div class="flex justify-between items-start"><h3 class="font-bold text-lg">${fmt(x.amount)}</h3><span class="text-xs text-amber-700 bg-amber-200 px-2 py-1 rounded">BELUM LUNAS</span></div><p class="text-sm text-slate-600 mt-2">📅 ${x.date}</p><button onclick="openSettle('${x.transactionId}')" class="btn-sticky mt-3 w-full bg-emerald-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-emerald-600">💰 LUNASI HUTANG</button></div>`).join('')||'<p class="text-slate-400 text-center py-8 col-span-3">Tidak ada piutang</p>'; 
+    };
     
     // SETTLE DEBT LOGIC (PARTIAL SUPPORT)
-    window.openSettle = async id => { 
+    window.openSettle = id => { 
       settleTxId = id; 
       const tx = txCache.find(t=>t.id===id);
       if(!tx) return alert('Data tidak ditemukan');
@@ -325,6 +508,7 @@
       document.getElementById('settle-amount').value = '';
       openModal('settle'); 
     };
+    
     window.confirmSettle = async () => {
       const payAmt = Number(document.getElementById('settle-amount').value);
       const method = document.getElementById('settle-method').value;
@@ -367,7 +551,13 @@
       const expenses = txCache.filter(t=>t.type==='expense'&&t.category==='operational'&&(f==='all'?true:t.date.startsWith(today.slice(0,7))));
       
       let cashIn=0,bankIn=0,cashOut=0,bankOut=0,unpaid=0;
-      income.forEach(t=>{ if(t.status==='lunas'){if(t.payment==='cash')cashIn+=t.total; else bankIn+=t.total;} else unpaid+=t.remainingAmount; });
+      income.forEach(t=>{ 
+        if(t.status==='lunas'){
+          if(t.payment==='cash')cashIn+=t.total; else bankIn+=t.total;
+        } else {
+          unpaid+=t.remainingAmount; 
+        }
+      });
       expenses.forEach(t=>{ if(t.payment==='cash')cashOut+=t.amount; else bankOut+=t.amount; });
       
       document.getElementById('d-cash').textContent=fmt(cashIn-cashOut); 
@@ -381,19 +571,60 @@
     };
 
     // PRINT & WA
-    window.showReceipt = async (tx,c,id) => { const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #ccc;"><h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><p style="text-align:center;font-size:12px;color:#666;">Nota Service</p><hr/><p><b>Tgl:</b> ${tx.date}<br><b>ID:</b> ${id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:13px;margin:10px 0;"><tr><th style="text-align:left;">Item</th><th style="text-align:right;">Total</th></tr>${tx.jasa.map(j=>`<tr><td>Jasa: ${j.name}</td><td style="text-align:right;">${fmt(j.amount)}</td></tr>`).join('')}${tx.parts.map(p=>`<tr><td>${p.name} x${p.qty}</td><td style="text-align:right;">${fmt(p.price*p.qty)}</td></tr>`).join('')}<tr style="border-top:2px solid #000;"><td><b>TOTAL</b></td><td style="text-align:right;"><b>${fmt(tx.total)}</b></td></tr></table><p><b>Bayar:</b> ${tx.payment.toUpperCase()} | <b>Status:</b> ${tx.status.toUpperCase()}</p><hr/><p style="text-align:center;font-size:11px;">Terima kasih.</p></div>`; document.getElementById('print-area').innerHTML=html; document.getElementById('print-area').classList.remove('hidden'); window.print(); setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000); if(confirm('Kirim nota via WhatsApp?')){let m=`*NOTA SERVICE*\n📅 ${tx.date}\n👤 ${c.name} |  ${tx.plate}\n\n`; tx.jasa.forEach(j=>m+=`• ${j.name}: ${fmt(j.amount)}\n`); tx.parts.forEach(p=>m+=`• ${p.name}x${p.qty}: ${fmt(p.price*p.qty)}\n`); m+=`\n💰 *TOTAL: ${fmt(tx.total)}*\n💳 ${tx.payment.toUpperCase()} | 📝 ${tx.status.toUpperCase()}\n\nTerima kasih 🙏`; window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`,'_blank');} };
-
-    window.showSettlementReceipt = async (tx,c,method,paidAmt,remaining) => { 
-      const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #22c55e;background:#f0fdf4;"><h2 style="text-align:center;margin:0;color:#166534;">✅ BUKTI PELUNASAN</h2><p style="text-align:center;font-size:12px;color:#166534;">Je Garage Pro - Official Receipt</p><hr style="border-color:#22c55e;"/><p><b>Tgl Bayar:</b> ${new Date().toLocaleDateString('id-ID')}<br><b>ID Transaksi:</b> ${tx.id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:14px;margin:10px 0;"><tr><td><b>Dibayar Sekarang</b></td><td style="text-align:right;">${fmt(paidAmt)}</td></tr><tr><td><b>Via</b></td><td style="text-align:right;">${method.toUpperCase()}</td></tr><tr><td><b>Sisa Hutang</b></td><td style="text-align:right;">${fmt(remaining)}</td></tr><tr style="border-top:2px solid #166534;"><td><b>STATUS</b></td><td style="text-align:right;color:#166534;"><b>${remaining<=0?'LUNAS ✅':'PARTIAL ⏳'}</b></td></tr></table><hr style="border-color:#22c55e;"/><p style="text-align:center;font-size:11px;color:#166534;">Dokumen ini sah sebagai bukti pembayaran.</p></div>`; 
-      document.getElementById('print-area').innerHTML=html; document.getElementById('print-area').classList.remove('hidden'); window.print(); setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000);
-      if(confirm('Kirim bukti pelunasan via WhatsApp?')){
-        const m=`*✅ BUKTI PELUNASAN*\n ${new Date().toLocaleDateString('id-ID')}\n👤 ${c.name} |  ${tx.plate}\n\n💰 *Dibayar: ${fmt(paidAmt)}*\n *Metode: ${method.toUpperCase()}*\n📝 *Sisa: ${fmt(remaining)}*\n🏷️ *Status: ${remaining<=0?'LUNAS':'PARTIAL'}*\n\nTerima kasih `; 
+    window.showReceipt = async (tx,c,id) => { 
+      const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #ccc;"><h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><p style="text-align:center;font-size:12px;color:#666;">Nota Service</p><hr/><p><b>Tgl:</b> ${tx.date}<br><b>ID:</b> ${id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:13px;margin:10px 0;"><tr><th style="text-align:left;">Item</th><th style="text-align:right;">Total</th></tr>${tx.jasa.map(j=>`<tr><td>Jasa: ${j.name}</td><td style="text-align:right;">${fmt(j.amount)}</td></tr>`).join('')}${tx.parts.map(p=>`<tr><td>${p.name} x${p.qty}</td><td style="text-align:right;">${fmt(p.price*p.qty)}</td></tr>`).join('')}<tr style="border-top:2px solid #000;"><td><b>TOTAL</b></td><td style="text-align:right;"><b>${fmt(tx.total)}</b></td></tr></table><p><b>Bayar:</b> ${tx.payment.toUpperCase()} | <b>Status:</b> ${tx.status.toUpperCase()}</p><hr/><p style="text-align:center;font-size:11px;">Terima kasih.</p></div>`; 
+      document.getElementById('print-area').innerHTML=html; 
+      document.getElementById('print-area').classList.remove('hidden'); 
+      window.print(); 
+      setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000); 
+      if(confirm('Kirim nota via WhatsApp?')){
+        let m=`*NOTA SERVICE*\n📅 ${tx.date}\n👤 ${c.name} |  ${tx.plate}\n\n`; 
+        tx.jasa.forEach(j=>m+=`• ${j.name}: ${fmt(j.amount)}\n`); 
+        tx.parts.forEach(p=>m+=`• ${p.name}x${p.qty}: ${fmt(p.price*p.qty)}\n`); 
+        m+=`\n💰 *TOTAL: ${fmt(tx.total)}*\n💳 ${tx.payment.toUpperCase()} | 📝 ${tx.status.toUpperCase()}\n\nTerima kasih `; 
         window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`,'_blank');
       } 
     };
 
-    async function refreshAll() { if(!user||!garageId)return; customersCache=await load('customers',{order:'createdAt'}); txCache=await load('transactions',{order:'date'}); partsCache=await load('spareparts',{order:'name'}); recCache=await load('receivables',{where:{f:'status',op:'==',v:'unpaid'},order:'date'}); expCache=txCache; renderCustomers(); renderWarehouse(); renderExpenses(); renderHistory(); renderReceivables(); calcStats(); if(role==='admin') renderTeam(); }
-    window.refreshAll=refreshAll;
+    window.showSettlementReceipt = async (tx,c,method,paidAmt,remaining) => { 
+      const html=`<div style="font-family:sans-serif;max-width:300px;margin:0 auto;padding:20px;border:2px dashed #22c55e;background:#f0fdf4;"><h2 style="text-align:center;margin:0;color:#166534;">✅ BUKTI PELUNASAN</h2><p style="text-align:center;font-size:12px;color:#166534;">Je Garage Pro - Official Receipt</p><hr style="border-color:#22c55e;"/><p><b>Tgl Bayar:</b> ${new Date().toLocaleDateString('id-ID')}<br><b>ID Transaksi:</b> ${tx.id.slice(-6)}<br><b>Pelanggan:</b> ${c.name} | ${tx.plate}</p><table style="width:100%;font-size:14px;margin:10px 0;"><tr><td><b>Dibayar Sekarang</b></td><td style="text-align:right;">${fmt(paidAmt)}</td></tr><tr><td><b>Via</b></td><td style="text-align:right;">${method.toUpperCase()}</td></tr><tr><td><b>Sisa Hutang</b></td><td style="text-align:right;">${fmt(remaining)}</td></tr><tr style="border-top:2px solid #166534;"><td><b>STATUS</b></td><td style="text-align:right;color:#166534;"><b>${remaining<=0?'LUNAS ✅':'PARTIAL ⏳'}</b></td></tr></table><hr style="border-color:#22c55e;"/><p style="text-align:center;font-size:11px;color:#166534;">Dokumen ini sah sebagai bukti pembayaran.</p></div>`; 
+      document.getElementById('print-area').innerHTML=html; 
+      document.getElementById('print-area').classList.remove('hidden'); 
+      window.print(); 
+      setTimeout(()=>document.getElementById('print-area').classList.add('hidden'),1000);
+      if(confirm('Kirim bukti pelunasan via WhatsApp?')){
+        const m=`*✅ BUKTI PELUNASAN*\n📅 ${new Date().toLocaleDateString('id-ID')}\n👤 ${c.name} | 🚗 ${tx.plate}\n\n💰 *Dibayar: ${fmt(paidAmt)}*\n💳 *Metode: ${method.toUpperCase()}*\n📝 *Sisa: ${fmt(remaining)}*\n🏷️ *Status: ${remaining<=0?'LUNAS':'PARTIAL'}*\n\nTerima kasih 🙏`; 
+        window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`,'_blank');
+      } 
+    };
+
+    // GLOBAL REFRESH (Async Promise.all untuk sinkronisasi data)
+    async function refreshAll() { 
+      if(!user||!garageId) return;
+      try {
+        const [customers, transactions, parts, receivables] = await Promise.all([
+          load('customers', {order:'createdAt'}),
+          load('transactions', {order:'date'}),
+          load('spareparts', {order:'name'}),
+          load('receivables', {where:{f:'status',op:'==',v:'unpaid'}, order:'date'})
+        ]);
+        customersCache = customers;
+        txCache = transactions;
+        partsCache = parts;
+        recCache = receivables;
+        
+        renderCustomers();
+        renderWarehouse();
+        renderExpenses();
+        renderHistory();
+        renderReceivables();
+        calcStats();
+        if(role==='admin') renderTeam();
+      } catch(err) {
+        console.error('Refresh error:', err);
+      }
+    }
+    window.refreshAll = refreshAll;
   </script>
 </body>
 </html>
