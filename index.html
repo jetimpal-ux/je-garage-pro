@@ -121,9 +121,12 @@
           </div>
           <div class="border-t pt-4"><h3 class="font-semibold mb-2">🔧 Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
           
-          <!-- SPAREPART SECTION - DIPERBAIKI -->
+          <!-- SPAREPART SECTION -->
           <div class="border-t pt-4">
-            <h3 class="font-semibold mb-2">📦 Sparepart / Bahan</h3>
+            <h3 class="font-semibold mb-2 flex items-center gap-2">
+              📦 Sparepart / Bahan 
+              <span id="parts-count" class="text-xs text-slate-500 font-normal">(0 item tersedia di gudang)</span>
+            </h3>
             <div id="part-items" class="space-y-2">
               <!-- Row sparepart akan ditambahkan di sini -->
             </div>
@@ -226,7 +229,7 @@
     const fmt = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
     const col = (name) => collection(db, 'garages', garageId, name);
     
-    // FUNGSI LOAD YANG DIPERBAIKI
+    // FUNGSI LOAD
     const load = async (name, opts={}) => { 
       const snapshot = await getDocs(col(name)); 
       let data = snapshot.docs.map(d=>({id:d.id,...d.data()}));
@@ -253,7 +256,6 @@
     const add = async (name, data) => addDoc(col(name), {...data, createdAt: serverTimestamp()});
     const upd = async (name, id, data) => updateDoc(doc(db,'garages',garageId,name,id), data);
     
-    // FUNGSI DELETE - DIPERBAIKI
     window.del = async (name, id) => {
       if(!confirm('Yakin ingin menghapus data ini?')) return;
       try {
@@ -424,6 +426,27 @@
     };
 
     // DYNAMIC FORMS & AUTO-CALC
+    
+    // FUNGSI UPDATE SEMUA DROPDOWN SPAREPART
+    function updateAllPartDropdowns() {
+      const allSelects = document.querySelectorAll('.part-select');
+      console.log('Updating', allSelects.length, 'dropdowns with', partsCache.length, 'parts');
+      
+      allSelects.forEach(sel => {
+        const currentValue = sel.value; // Simpan nilai yang sedang dipilih
+        if(partsCache.length === 0) {
+          sel.innerHTML = '<option value="">Gudang kosong</option>';
+        } else {
+          sel.innerHTML = '<option value="">-- Pilih Sparepart --</option>' + 
+            partsCache.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join('');
+        }
+        // Kembalikan nilai yang dipilih sebelumnya jika masih valid
+        if(currentValue && partsCache.find(p => p.id === currentValue)) {
+          sel.value = currentValue;
+        }
+      });
+    }
+
     window.addServiceRow = () => { 
       const d=document.createElement('div'); 
       d.className='grid grid-cols-[1fr_80px_30px] gap-2'; 
@@ -433,36 +456,50 @@
     
     // FUNGSI TAMBAH SPAREPART ROW - DIPERBAIKI
     window.addPartRow = () => { 
+      console.log('Adding part row. partsCache length:', partsCache.length);
+      
       const d=document.createElement('div'); 
       d.className='grid grid-cols-[1fr_80px_60px_80px_30px] gap-2 items-center mb-2'; 
       d.innerHTML=`
         <select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)">
           <option value="gudang">Dari Gudang</option><option value="manual">Manual</option>
         </select>
-        <select class="px-2 py-2 rounded-lg border part-select hidden w-full"></select>
+        <select class="px-2 py-2 rounded-lg border part-select w-full"></select>
         <input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual">
         <input type="number" placeholder="Harga Satuan" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartSubtotal(this)">
         <input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartSubtotal(this)">
         <input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700">
         <button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">✕</button>`; 
       
-      // Populate dropdown dengan data gudang
-      const sel=d.querySelector('.part-select'); 
+      // Isi dropdown dengan data terbaru
+      const sel = d.querySelector('.part-select');
       if(partsCache.length === 0) {
-        sel.innerHTML='<option value="">Gudang kosong</option>';
+        sel.innerHTML = '<option value="">Gudang kosong</option>';
       } else {
-        sel.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join(''); 
+        sel.innerHTML = '<option value="">-- Pilih Sparepart --</option>' + 
+          partsCache.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join('');
       }
       
-      sel.onchange=function(){
+      sel.onchange = function() {
         const selectedOpt = this.options[this.selectedIndex];
         if(selectedOpt.value) {
-          this.parentElement.querySelector('.part-price').value=selectedOpt.dataset.price||'';
+          this.parentElement.querySelector('.part-price').value = selectedOpt.dataset.price || '';
+          // Validasi stok
+          const maxStock = Number(selectedOpt.dataset.stock) || 0;
+          const qtyInput = this.parentElement.querySelector('.part-qty');
+          qtyInput.max = maxStock;
+          if(Number(qtyInput.value) > maxStock) {
+            qtyInput.value = maxStock;
+            alert(`⚠️ Stok ${selectedOpt.text.split(' (')[0]} hanya tersisa ${maxStock}`);
+          }
         }
         calcPartSubtotal(this);
-      }; 
+      };
       
       document.getElementById('part-items').appendChild(d); 
+      
+      // Update counter
+      document.getElementById('parts-count').textContent = `(${partsCache.length} item tersedia di gudang)`;
     };
     
     window.togglePartType = s => { 
@@ -563,13 +600,12 @@
     
     const renderWarehouse = () => { 
       document.getElementById('warehouse-list').innerHTML=partsCache.map(p=>`<tr class="hover:bg-slate-50 ${p.stock<=(p.minStock||5)?'alert-row':''}"><td class="p-4 font-medium">${p.name}</td><td class="p-4">${p.unit}</td><td class="p-4 text-right ${p.stock<=(p.minStock||5)?'stock-low':''}">${p.stock}</td><td class="p-4 text-right">${p.minStock||5}</td><td class="p-4 text-right">${fmt(p.price)}</td><td class="p-4 text-center"><button onclick="del('spareparts','${p.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Gudang kosong</td></tr>'; 
-      document.querySelectorAll('.part-select').forEach(s=>{
-        if(partsCache.length === 0) {
-          s.innerHTML='<option value="">Gudang kosong</option>';
-        } else {
-          s.innerHTML=partsCache.map(p=>`<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`).join('');
-        }
-      }); 
+      
+      // Update semua dropdown yang sudah ada di halaman input service
+      updateAllPartDropdowns();
+      
+      // Update counter
+      document.getElementById('parts-count').textContent = `(${partsCache.length} item tersedia di gudang)`;
     };
     
     const renderExpenses = () => { 
@@ -577,7 +613,6 @@
       document.getElementById('expense-list').innerHTML=list.map(t=>`<tr><td class="p-4">${t.date}</td><td class="p-4 capitalize">${t.description||'-'}</td><td class="p-4 text-xs text-slate-500">${t.category}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ${t.payment==='cash'?'bg-purple-100 text-purple-700':'bg-blue-100 text-blue-700'}">${t.payment.toUpperCase()}</span></td><td class="p-4 text-right font-bold text-red-600">${fmt(t.amount)}</td><td class="p-4 text-center"><button onclick="del('transactions','${t.id}')" class="text-red-500 hover:underline">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pengeluaran</td></tr>'; 
     };
     
-    // FUNGSI RENDER HISTORY - DIPERBAIKI
     window.filterHistory = (f) => {
       const l=txCache.filter(t=> (f==='month'?t.date.startsWith(today.slice(0,7)):true));
       console.log('Rendering history, total transactions:', l.length);
@@ -644,7 +679,7 @@
       } catch(e) { alert('Gagal memproses pelunasan: ' + e.message); }
     };
 
-    window.filterReport = f => { renderHistory(f); calcStats(f); };
+    window.filterReport = f => { filterHistory(f); calcStats(f); };
     window.reprint = async id => { const t=txCache.find(x=>x.id===id); if(t) showReceipt(t,customersCache.find(x=>x.id===t.customerId),id); };
     
     // STATS CALC
@@ -725,9 +760,9 @@
         recCache = receivables;
         
         renderCustomers();
-        renderWarehouse();
+        renderWarehouse(); // Ini akan update semua dropdown sparepart
         renderExpenses();
-        filterHistory('all'); // Render history with all data
+        filterHistory('all');
         renderReceivables();
         calcStats();
         if(role==='admin') renderTeam();
