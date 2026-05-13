@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Je Garage Pro - Final Fix</title>
+  <title>Je Garage Pro - Fixed</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -12,8 +12,6 @@
     @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-50; align-items: center; justify-content: center; padding: 1rem; }
     .modal.open { display: flex; }
-    .alert-row { background: #fef2f2; border-left: 4px solid #ef4444; }
-    .stock-low { color: #dc2626; font-weight: bold; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -24,7 +22,7 @@
       <div class="text-center mb-6">
         <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">JG</div>
         <h1 class="text-2xl font-bold">Je Garage Pro</h1>
-        <p class="text-slate-500 text-sm">Final Fix: Print & Stock</p>
+        <p class="text-slate-500 text-sm">Fixed Syntax Error</p>
       </div>
       <form id="login-form" class="space-y-4">
         <input type="email" id="email" placeholder="Email" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-amber-500 outline-none">
@@ -40,13 +38,13 @@
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
       <h2 class="text-xl font-bold mb-4 text-center">Setup Garage / Masuk Tim</h2>
       <div class="space-y-4">
-        <button onclick="showGarageForm('create')" class="w-full bg-amber-500 text-white py-3 rounded-xl font-medium hover:bg-amber-600">+ Buat Garage Baru (Admin)</button>
+        <button onclick="showGarageForm('create')" class="w-full bg-amber-500 text-white py-3 rounded-xl font-medium hover:bg-amber-600">+ Buat Garage Baru</button>
         <div class="text-center text-slate-400">atau</div>
         <button onclick="showGarageForm('join')" class="w-full bg-slate-700 text-white py-3 rounded-xl font-medium hover:bg-slate-600">Gabung Garage (Kode)</button>
       </div>
       <div id="garage-forms" class="mt-4 hidden space-y-3">
         <input id="g-name" placeholder="Nama Garage" class="w-full px-4 py-3 rounded-xl border border-gray-200">
-        <input id="g-code" placeholder="Kode Garage (jika join)" class="w-full px-4 py-3 rounded-xl border border-gray-200 hidden">
+        <input id="g-code" placeholder="Kode Garage" class="w-full px-4 py-3 rounded-xl border border-gray-200 hidden">
         <div class="flex gap-3">
           <button onclick="document.getElementById('garage-forms').classList.add('hidden')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button>
           <button id="g-submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium">Lanjut</button>
@@ -67,133 +65,85 @@
         <button onclick="nav('warehouse')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Gudang</button>
         <button onclick="nav('customers')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Pelanggan</button>
         <button onclick="nav('new-tx')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Input Service</button>
-        <button onclick="nav('expenses')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Operasional</button>
         <button onclick="nav('history')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Histori</button>
         <button onclick="nav('reports')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Laporan</button>
         <button onclick="nav('receivables')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Piutang</button>
-        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">Pengaturan Tim</button>
+        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">Pengaturan</button>
       </nav>
       <button onclick="logout()" class="mt-6 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400">Logout</button>
     </aside>
 
     <main class="flex-1 md:ml-64 p-4 md:p-8 pb-24">
       <div id="dashboard" class="page active">
-        <h2 class="text-2xl font-bold mb-6">Dashboard Keuangan</h2>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-purple-500"><p class="text-sm text-slate-500">Kas Tunai Bersih</p><p id="d-cash" class="text-xl font-bold text-purple-600">Rp 0</p></div>
-          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-blue-500"><p class="text-sm text-slate-500">Saldo Bank Bersih</p><p id="d-bank" class="text-xl font-bold text-blue-600">Rp 0</p></div>
-          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-amber-500"><p class="text-sm text-slate-500">Sisa Piutang</p><p id="d-receivables" class="text-xl font-bold text-amber-600">Rp 0</p></div>
-          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-red-500"><p class="text-sm text-slate-500">Total Operasional</p><p id="d-expenses" class="text-xl font-bold text-red-600">Rp 0</p></div>
+        <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-purple-500"><p class="text-sm text-slate-500">Kas Tunai</p><p id="d-cash" class="text-xl font-bold text-purple-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-blue-500"><p class="text-sm text-slate-500">Saldo Bank</p><p id="d-bank" class="text-xl font-bold text-blue-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-amber-500"><p class="text-sm text-slate-500">Piutang</p><p id="d-receivables" class="text-xl font-bold text-amber-600">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-red-500"><p class="text-sm text-slate-500">Operasional</p><p id="d-expenses" class="text-xl font-bold text-red-600">Rp 0</p></div>
         </div>
       </div>
 
       <div id="warehouse" class="page">
-        <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
-          <h2 class="text-2xl font-bold">Gudang Sparepart</h2>
-          <div class="flex gap-2">
-            <button onclick="exportCSV()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 transition">Export Stok</button>
-            <button onclick="openModal('part')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">Tambah</button>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Nama</th><th class="p-4 text-left">Satuan</th><th class="p-4 text-right">Stok</th><th class="p-4 text-right">Min</th><th class="p-4 text-right">Harga</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="warehouse-list" class="divide-y"></tbody></table></div>
+        <h2 class="text-2xl font-bold mb-6">Gudang Sparepart</h2>
+        <button onclick="openModal('part')" class="bg-amber-500 text-white px-4 py-2 rounded-xl mb-4">Tambah Sparepart</button>
+        <div class="bg-white rounded-2xl shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th class="p-4 text-left">Nama</th><th class="p-4 text-right">Stok</th><th class="p-4 text-right">Harga</th></tr></thead><tbody id="warehouse-list"></tbody></table></div>
       </div>
 
       <div id="customers" class="page">
-        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Data Pelanggan & Kendaraan</h2><button onclick="openModal('cust')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">Tambah</button></div>
-        <div id="cust-loading" class="text-center py-8 text-slate-500">Memuat data...</div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cust-list" style="display:none;"></div>
+        <h2 class="text-2xl font-bold mb-6">Pelanggan</h2>
+        <button onclick="openModal('cust')" class="bg-amber-500 text-white px-4 py-2 rounded-xl mb-4">Tambah Pelanggan</button>
+        <div id="cust-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
 
       <div id="new-tx" class="page">
-        <h2 class="text-2xl font-bold mb-6">Input Service & Sparepart</h2>
+        <h2 class="text-2xl font-bold mb-6">Input Service</h2>
         <form id="tx-form" class="bg-white p-6 rounded-2xl shadow space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Pilih Pelanggan</label>
-              <select id="tx-customer" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required>
-                <option value="">-- Pilih Pelanggan --</option>
-              </select>
-            </div>
-            <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="date" id="tx-date" class="w-full px-4 py-3 rounded-xl border border-gray-200" required></div>
-          </div>
-          <div class="border-t pt-4"><h3 class="font-semibold mb-2">Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">X</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
-          
-          <div class="border-t pt-4">
-            <h3 class="font-semibold mb-2 flex items-center gap-2">Sparepart / Bahan <span id="parts-count" class="text-xs text-slate-500 font-normal">(0 item)</span></h3>
-            <div id="part-items" class="space-y-2"></div>
-            <button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline flex items-center gap-1"><span>+</span> Tambah Sparepart/Bahan</button>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-            <div><label class="block text-sm font-medium mb-1">Metode Pembayaran</label><select id="tx-pay" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="cash">Tunai</option><option value="transfer">Transfer Bank</option><option value="bon">Bon / Kredit</option></select></div>
-            <div><label class="block text-sm font-medium mb-1">Grand Total</label><input type="text" id="tx-total" readonly class="w-full px-4 py-3 rounded-xl bg-slate-100 font-bold text-lg text-slate-800"></div>
-          </div>
-          <button type="submit" class="w-full bg-slate-800 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">Simpan & Cetak Nota</button>
+          <select id="tx-customer" class="w-full px-4 py-3 rounded-xl border" required><option value="">Pilih Pelanggan</option></select>
+          <input type="date" id="tx-date" class="w-full px-4 py-3 rounded-xl border" required>
+          <div id="service-items"></div>
+          <button type="button" onclick="addServiceRow()" class="text-amber-600">+ Tambah Jasa</button>
+          <div id="part-items"></div>
+          <button type="button" onclick="addPartRow()" class="text-blue-600">+ Tambah Sparepart</button>
+          <input type="text" id="tx-total" readonly class="w-full px-4 py-3 rounded-xl bg-slate-100 font-bold">
+          <select id="tx-pay" class="w-full px-4 py-3 rounded-xl border" required><option value="cash">Tunai</option><option value="transfer">Transfer</option><option value="bon">Bon</option></select>
+          <button type="submit" class="w-full bg-slate-800 text-white py-3 rounded-xl">Simpan</button>
         </form>
       </div>
 
-      <div id="expenses" class="page">
-        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Pengeluaran Operasional</h2><button onclick="openModal('expense')" class="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition">Catat Pengeluaran</button></div>
-        <div class="bg-white rounded-2xl shadow overflow-x-auto"><table class="w-full text-sm min-w-[600px]"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Tanggal</th><th class="p-4 text-left">Kategori</th><th class="p-4 text-left">Keterangan</th><th class="p-4 text-left">Bayar Via</th><th class="p-4 text-right">Nominal</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="expense-list" class="divide-y"></tbody></table></div>
-      </div>
-
       <div id="history" class="page">
-        <h2 class="text-2xl font-bold mb-4">Histori Transaksi</h2>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button onclick="printHistory('today')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Hari Ini</button>
-          <button onclick="printHistory('month')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Bulan Ini</button>
-          <button onclick="printHistory('all')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Semua</button>
-        </div>
-        <div class="flex gap-2 mb-4">
-          <button onclick="filterHistory('all')" class="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm">Semua</button>
-          <button onclick="filterHistory('month')" class="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm">Bulan Ini</button>
-        </div>
-        <div class="bg-white rounded-2xl shadow overflow-x-auto">
-          <table class="w-full text-sm min-w-[700px]"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Tanggal</th><th class="p-4 text-left">Pelanggan</th><th class="p-4 text-left">Detail</th><th class="p-4 text-left">Bayar</th><th class="p-4 text-right">Total/Sisa</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="history-list" class="divide-y"></tbody></table>
-        </div>
+        <h2 class="text-2xl font-bold mb-6">Histori</h2>
+        <div id="history-list"></div>
       </div>
 
       <div id="reports" class="page">
-        <h2 class="text-2xl font-bold mb-4">Laporan Keuangan</h2>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button onclick="printReport('today')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Hari Ini</button>
-          <button onclick="printReport('month')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Bulan Ini</button>
-          <button onclick="printReport('all')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Semua</button>
+        <h2 class="text-2xl font-bold mb-6">Laporan</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white p-5 rounded-2xl shadow"><h3>Pemasukan</h3><p id="rep-total-in" class="text-2xl font-bold">Rp 0</p></div>
+          <div class="bg-white p-5 rounded-2xl shadow"><h3>Pengeluaran</h3><p id="rep-total-out" class="text-2xl font-bold">Rp 0</p></div>
         </div>
-        <div class="flex flex-wrap gap-2 mb-6">
-          <button onclick="filterReport('all')" class="px-4 py-2 rounded-lg bg-amber-500 text-white">Semua</button>
-          <button onclick="filterReport('month')" class="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300">Bulan Ini</button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Pemasukan</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Masuk</span><span id="rep-cash-in" class="font-bold text-purple-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Masuk</span><span id="rep-bank-in" class="font-bold text-blue-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Masuk</span><span id="rep-total-in">Rp 0</span></div></div>
-          <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Pengeluaran Operasional</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Keluar</span><span id="rep-cash-out" class="font-bold text-red-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Keluar</span><span id="rep-bank-out" class="font-bold text-red-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Keluar</span><span id="rep-total-out">Rp 0</span></div></div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Saldo Riil</h3><div class="grid grid-cols-2 gap-4"><div class="flex justify-between"><span>Kas Tunai Bersih</span><span id="rep-net-cash" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between"><span>Saldo Bank Bersih</span><span id="rep-net-bank" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between col-span-2 border-t pt-3"><span>Sisa Piutang (Belum Lunas)</span><span id="rep-unpaid" class="font-bold text-amber-600">Rp 0</span></div></div></div>
       </div>
 
       <div id="receivables" class="page">
-        <h2 class="text-2xl font-bold mb-6">Daftar Piutang / Belum Lunas</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="rec-list"></div>
+        <h2 class="text-2xl font-bold mb-6">Piutang</h2>
+        <div id="rec-list"></div>
       </div>
 
       <div id="settings" class="page admin-only hidden">
-        <h2 class="text-2xl font-bold mb-6">Pengaturan Tim & Garage</h2>
-        <div class="bg-white p-6 rounded-2xl shadow mb-6"><h3 class="font-semibold mb-4">Kode Garage</h3><div class="flex items-center gap-3 bg-slate-100 p-3 rounded-lg"><code id="garage-code-display" class="flex-1 font-mono text-lg text-center">LOADING...</code><button onclick="copyCode()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700">Copy</button></div></div>
-        <div class="bg-white p-6 rounded-2xl shadow"><h3 class="font-semibold mb-4">Daftar Anggota</h3><form id="team-form" class="flex gap-2 mb-4"><input id="team-email" type="email" placeholder="Email anggota baru" required class="flex-1 px-3 py-2 rounded-lg border"><select id="team-role" class="px-3 py-2 rounded-lg border"><option value="mekanik">Mekanik</option><option value="kasir">Kasir</option><option value="admin">Admin</option></select><button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">Tambah</button></form><ul id="team-list" class="divide-y"></ul></div>
+        <h2 class="text-2xl font-bold mb-6">Pengaturan</h2>
+        <div class="bg-white p-6 rounded-2xl shadow">
+          <p>Kode Garage: <code id="garage-code-display" class="bg-slate-100 px-2 py-1 rounded">...</code></p>
+          <button onclick="copyCode()" class="mt-2 px-4 py-2 bg-slate-800 text-white rounded">Copy</button>
+        </div>
       </div>
     </main>
   </div>
 
   <!-- MODALS -->
-  <div id="modal-cust" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6"><h3 class="text-xl font-bold mb-4">Tambah Pelanggan</h3><form id="cust-form" class="space-y-4"><input id="c-name" placeholder="Nama Lengkap" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="c-phone" placeholder="Telepon" type="tel" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="grid grid-cols-2 gap-3"><input id="c-plate" placeholder="No. Plat" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="c-year" placeholder="Tahun" type="number" class="w-full px-4 py-3 rounded-xl border border-gray-200"></div><input id="c-model" placeholder="Merek & Model" class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('cust')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
+  <div id="modal-cust" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6"><h3 class="text-xl font-bold mb-4">Tambah Pelanggan</h3><form id="cust-form" class="space-y-4"><input id="c-name" placeholder="Nama" required class="w-full px-4 py-3 rounded-xl border"><input id="c-phone" placeholder="Telepon" class="w-full px-4 py-3 rounded-xl border"><input id="c-plate" placeholder="No. Plat" class="w-full px-4 py-3 rounded-xl border"><div class="flex gap-3"><button type="button" onclick="closeModal('cust')" class="flex-1 py-3 border rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl">Simpan</button></div></form></div></div>
 
-  <div id="modal-part" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">Tambah Sparepart</h3><form id="part-form" class="space-y-4"><input id="p-name" placeholder="Nama Sparepart" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="grid grid-cols-3 gap-3"><input id="p-stock" type="number" placeholder="Stok" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="p-min" type="number" placeholder="Min Stok" value="5" class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="p-unit" placeholder="Satuan" required class="w-full px-4 py-3 rounded-xl border border-gray-200"></div><input id="p-price" type="number" placeholder="Harga Jual" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('part')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
+  <div id="modal-part" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">Tambah Sparepart</h3><form id="part-form" class="space-y-4"><input id="p-name" placeholder="Nama" required class="w-full px-4 py-3 rounded-xl border"><input id="p-stock" type="number" placeholder="Stok" required class="w-full px-4 py-3 rounded-xl border"><input id="p-price" type="number" placeholder="Harga" required class="w-full px-4 py-3 rounded-xl border"><div class="flex gap-3"><button type="button" onclick="closeModal('part')" class="flex-1 py-3 border rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl">Simpan</button></div></form></div></div>
 
-  <div id="modal-settle" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"><h3 class="text-xl font-bold mb-4">Pelunasan Parsial / Penuh</h3><div class="bg-amber-50 p-3 rounded-lg mb-4"><p class="text-sm text-amber-800">Total Hutang: <span id="settle-total" class="font-bold">Rp 0</span></p><p class="text-sm text-amber-800">Sudah Dibayar: <span id="settle-paid" class="font-bold">Rp 0</span></p><p class="text-sm text-amber-800">Sisa Wajib: <span id="settle-remaining" class="font-bold text-red-600">Rp 0</span></p></div><div class="space-y-3"><label class="block text-sm font-medium">Nominal yang akan dilunasi</label><input id="settle-amount" type="number" placeholder="Masukkan jumlah" class="w-full px-4 py-3 rounded-xl border border-gray-200"><label class="block text-sm font-medium mt-2">Metode Pembayaran</label><select id="settle-method" class="w-full px-4 py-3 rounded-xl border border-gray-200"><option value="cash">Tunai</option><option value="transfer">Transfer</option></select></div><div class="flex gap-3 mt-4"><button onclick="closeModal('settle')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button onclick="confirmSettle()" class="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-medium">Konfirmasi</button></div></div></div>
-
-  <div id="modal-expense" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"><h3 class="text-xl font-bold mb-4">Catat Pengeluaran</h3><form id="expense-form" class="space-y-4"><input id="e-cat" placeholder="Kategori (Listrik, Sewa, ATK, dll)" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-desc" placeholder="Keterangan detail" class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-amount" type="number" placeholder="Nominal (Rp)" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-date" type="date" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><select id="e-method" class="w-full px-4 py-3 rounded-xl border border-gray-200"><option value="cash">Bayar Tunai</option><option value="transfer">Bayar Transfer</option></select><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('expense')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
-
-  <!-- FIREBASE & LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -205,58 +155,33 @@
   projectId: "je-garage-pro",
   storageBucket: "je-garage-pro.firebasestorage.app",
   messagingSenderId: "970616261539",
-  appId: "1:970616261539:web:6a21358b4405c1cb782816""
+  appId: "1:970616261539:web:6a21358b4405c1cb782816"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    let user = null, garageId = null, role = 'admin', settleTxId = null;
+    let user = null, garageId = null, role = 'admin';
     let customersCache = [], txCache = [], partsCache = [], recCache = [];
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('tx-date').value = today; 
-    document.getElementById('e-date').value = today;
 
     const fmt = function(n) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Number(n)||0);
     };
-    
+
     const col = function(name) {
       return collection(db, 'garages', garageId, name);
     };
-    
-    const load = async function(name, opts) {
-      opts = opts || {};
+
+    const load = async function(name) {
       var snapshot = await getDocs(col(name));
-      var data = snapshot.docs.map(function(d) {
+      return snapshot.docs.map(function(d) {
         return {id: d.id, ...d.data()};
       });
-      if(opts.where) {
-        data = data.filter(function(item) {
-          return item[opts.where.f] === opts.where.v;
-        });
-      }
-      return data;
     };
-    
+
     const add = async function(name, data) {
       return addDoc(col(name), {...data, createdAt: serverTimestamp()});
-    };
-    
-    const upd = async function(name, id, data) {
-      return updateDoc(doc(db,'garages',garageId,name,id), data);
-    };
-    
-    window.del = async function(name, id) {
-      if(!confirm('Yakin ingin menghapus data ini?')) return;
-      try {
-        await deleteDoc(doc(db, 'garages', garageId, name, id));
-        alert('Data berhasil dihapus');
-        await refreshAll();
-      } catch(err) {
-        console.error(err);
-        alert('Gagal menghapus: ' + err.message);
-      }
     };
 
     onAuthStateChanged(auth, async function(u) {
@@ -287,7 +212,7 @@
         document.getElementById('login-error').classList.remove('hidden');
       }
     };
-    
+
     window.logout = function() {
       signOut(auth);
     };
@@ -312,7 +237,7 @@
           } else {
             var code = document.getElementById('g-code').value.trim().toUpperCase();
             var gSnap = await getDoc(doc(db,'garages',code));
-            if(!gSnap.exists()) return alert('Kode garage tidak ditemukan!');
+            if(!gSnap.exists()) return alert('Kode tidak ditemukan!');
             var g = gSnap.data();
             if(!g.members.find(function(m) { return m.uid === user.uid; })) {
               await updateDoc(doc(db,'garages',code), {
@@ -321,10 +246,10 @@
             }
             await setDoc(doc(db,'profiles',user.uid), {
               garageId: code,
-              role: (g.members.find(function(m) { return m.uid === user.uid; }) || {}).role || 'mekanik'
+              role: 'mekanik'
             });
             garageId = code;
-            role = (g.members.find(function(m) { return m.uid === user.uid; }) || {}).role || 'mekanik';
+            role = 'mekanik';
           }
           document.getElementById('garage-screen').classList.add('hidden');
           await initApp();
@@ -339,37 +264,13 @@
       var garageDoc = await getDoc(doc(db,'garages',garageId));
       document.getElementById('sidebar-garage').textContent = garageDoc.data().name;
       document.getElementById('sidebar-role').textContent = 'Role: ' + role.toUpperCase();
-      if(role !== 'admin') {
-        document.querySelectorAll('.admin-only').forEach(function(el) {
-          el.classList.add('hidden');
-        });
-      }
       document.getElementById('garage-code-display').textContent = garageId;
       await refreshAll();
     }
-    
+
     window.copyCode = function() {
       navigator.clipboard.writeText(garageId);
       alert('Kode disalin!');
-    };
-    
-    document.getElementById('team-form').onsubmit = async function(e) {
-      e.preventDefault();
-      var email = document.getElementById('team-email').value;
-      var r = document.getElementById('team-role').value;
-      var g = await getDoc(doc(db,'garages',garageId));
-      var m = g.data().members;
-      m.push({email: email, role: r});
-      await upd('garages', garageId, {members: m});
-      e.target.reset();
-      renderTeam();
-    };
-    
-    var renderTeam = async function() {
-      var g = await getDoc(doc(db,'garages',garageId));
-      document.getElementById('team-list').innerHTML = g.data().members.map(function(m) {
-        return '<li class="p-3 flex justify-between"><span>' + m.email + '</span><span class="px-2 py-1 bg-slate-200 rounded text-xs">' + m.role + '</span></li>';
-      }).join('');
     };
 
     window.nav = function(id) {
@@ -377,16 +278,12 @@
         p.classList.remove('active');
       });
       document.getElementById(id).classList.add('active');
-      document.querySelectorAll('.nav-btn').forEach(function(b) {
-        b.classList.remove('bg-amber-500/20','text-amber-400','border','border-amber-500/30');
-      });
-      event.target.classList.add('bg-amber-500/20','text-amber-400','border','border-amber-500/30');
     };
-    
+
     window.openModal = function(id) {
       document.getElementById('modal-' + id).classList.add('open');
     };
-    
+
     window.closeModal = function(id) {
       document.getElementById('modal-' + id).classList.remove('open');
     };
@@ -394,597 +291,172 @@
     // CRUD
     document.getElementById('cust-form').onsubmit = async function(e) {
       e.preventDefault();
-      try {
-        await add('customers', {
-          name: document.getElementById('c-name').value,
-          phone: document.getElementById('c-phone').value,
-          plate: document.getElementById('c-plate').value,
-          year: document.getElementById('c-year').value,
-          model: document.getElementById('c-model').value
-        });
-        closeModal('cust');
-        document.getElementById('cust-form').reset();
-        alert('Pelanggan disimpan!');
-        await refreshAll();
-      } catch(err) {
-        alert('Error: ' + err.message);
-      }
+      await add('customers', {
+        name: document.getElementById('c-name').value,
+        phone: document.getElementById('c-phone').value,
+        plate: document.getElementById('c-plate').value
+      });
+      closeModal('cust');
+      document.getElementById('cust-form').reset();
+      alert('Pelanggan disimpan!');
+      await refreshAll();
     };
-    
+
     document.getElementById('part-form').onsubmit = async function(e) {
       e.preventDefault();
-      try {
-        await add('spareparts', {
-          name: document.getElementById('p-name').value,
-          stock: Number(document.getElementById('p-stock').value),
-          minStock: Number(document.getElementById('p-min').value),
-          unit: document.getElementById('p-unit').value,
-          price: Number(document.getElementById('p-price').value)
-        });
-        closeModal('part');
-        document.getElementById('part-form').reset();
-        alert('Sparepart ditambahkan!');
-        await refreshAll();
-      } catch(err) {
-        alert('Error: ' + err.message);
-      }
-    };
-    
-    document.getElementById('expense-form').onsubmit = async function(e) {
-      e.preventDefault();
-      try {
-        await add('transactions', {
-          type: 'expense',
-          category: 'operational',
-          description: document.getElementById('e-desc').value,
-          amount: Number(document.getElementById('e-amount').value),
-          payment: document.getElementById('e-method').value,
-          date: document.getElementById('e-date').value
-        });
-        closeModal('expense');
-        document.getElementById('expense-form').reset();
-        document.getElementById('e-date').value = today;
-        alert('Pengeluaran tercatat!');
-        await refreshAll();
-      } catch(err) {
-        alert('Error: ' + err.message);
-      }
-    };
-
-    window.exportCSV = function() {
-      var csv = "Nama,Stok,Satuan,Minimum Stok,Harga Jual\n";
-      partsCache.forEach(function(p) {
-        csv += '"' + p.name + '",' + p.stock + ',"' + p.unit + '",' + (p.minStock||0) + ',' + p.price + '\n';
+      await add('spareparts', {
+        name: document.getElementById('p-name').value,
+        stock: Number(document.getElementById('p-stock').value),
+        price: Number(document.getElementById('p-price').value)
       });
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
-      a.download = 'stok_' + today + '.csv';
-      a.click();
+      closeModal('part');
+      document.getElementById('part-form').reset();
+      alert('Sparepart ditambahkan!');
+      await refreshAll();
     };
 
-    // DYNAMIC FORMS
     window.addServiceRow = function() {
       var d = document.createElement('div');
-      d.className = 'grid grid-cols-[1fr_80px_30px] gap-2';
-      d.innerHTML = '<input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">X</button>';
+      d.className = 'space-y-2 mt-2';
+      d.innerHTML = '<input type="text" placeholder="Nama Jasa" class="w-full px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="w-full px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()">';
       document.getElementById('service-items').appendChild(d);
     };
-    
-    function updateAllPartDropdowns() {
-      document.querySelectorAll('.part-select').forEach(function(sel) {
-        var val = sel.value;
-        if(partsCache.length) {
-          sel.innerHTML = '<option value="">-- Pilih --</option>' + partsCache.map(function(p) {
-            return '<option value="' + p.id + '" data-price="' + p.price + '" data-stock="' + p.stock + '">' + p.name + ' (Stok: ' + p.stock + ')</option>';
-          }).join('');
-        } else {
-          sel.innerHTML = '<option value="">Kosong</option>';
-        }
-        if(val && partsCache.find(function(p) { return p.id === val; })) {
-          sel.value = val;
-        }
-      });
-    }
 
     window.addPartRow = function() {
       var d = document.createElement('div');
-      d.className = 'grid grid-cols-[1fr_80px_60px_80px_30px] gap-2 items-center mb-2';
-      d.innerHTML = '<select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)"><option value="gudang">Dari Gudang</option><option value="manual">Manual</option></select><select class="px-2 py-2 rounded-lg border part-select w-full"></select><input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual"><input type="number" placeholder="Harga Satuan" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartSubtotal(this)"><input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartSubtotal(this)"><input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">X</button>';
-      var sel = d.querySelector('.part-select');
-      if(partsCache.length) {
-        sel.innerHTML = '<option value="">-- Pilih --</option>' + partsCache.map(function(p) {
-          return '<option value="' + p.id + '" data-price="' + p.price + '" data-stock="' + p.stock + '">' + p.name + ' (Stok: ' + p.stock + ')</option>';
-        }).join('');
-      } else {
-        sel.innerHTML = '<option value="">Kosong</option>';
-      }
-      sel.onchange = function() {
-        if(this.value) {
-          this.parentElement.querySelector('.part-price').value = this.options[this.selectedIndex].dataset.price;
-        }
-        calcPartSubtotal(this);
-      };
+      d.className = 'space-y-2 mt-2';
+      d.innerHTML = '<select class="part-select w-full px-3 py-2 rounded-lg border"><option value="">Pilih Sparepart</option>' + partsCache.map(function(p) { return '<option value="' + p.id + '" data-price="' + p.price + '">' + p.name + ' (Stok: ' + p.stock + ')</option>'; }).join('') + '</select><input type="number" placeholder="Qty" value="1" class="part-qty w-full px-3 py-2 rounded-lg border" oninput="calcTotal()">';
       document.getElementById('part-items').appendChild(d);
-      document.getElementById('parts-count').textContent = '(' + partsCache.length + ' item)';
     };
-    
-    window.togglePartType = function(s) {
-      var r = s.parentElement;
-      var g = s.value === 'gudang';
-      r.querySelector('.part-select').classList.toggle('hidden', !g);
-      r.querySelector('.part-manual').classList.toggle('hidden', g);
-      calcPartSubtotal(s);
-    };
-    
-    window.calcPartSubtotal = function(el) {
-      var r = el.parentElement;
-      var q = Number(r.querySelector('.part-qty').value) || 0;
-      var p = Number(r.querySelector('.part-price').value) || 0;
-      r.querySelector('.part-sub').value = fmt(q * p);
-      calcTotal();
-    };
-    
+
     window.calcTotal = function() {
       var j = 0, p = 0;
       document.querySelectorAll('.tx-jasa').forEach(function(i) {
         j += Number(i.value) || 0;
       });
-      document.querySelectorAll('.part-sub').forEach(function(s) {
-        p += Number(s.value.replace(/[^\d]/g,'')) || 0;
+      document.querySelectorAll('.part-select').forEach(function(sel) {
+        var qty = Number(sel.parentElement.querySelector('.part-qty').value) || 0;
+        var price = Number(sel.options[sel.selectedIndex].dataset.price) || 0;
+        p += qty * price;
       });
       document.getElementById('tx-total').value = fmt(j + p);
       return {j: j, p: p};
     };
 
-    // SUBMIT TX
     document.getElementById('tx-form').onsubmit = async function(e) {
       e.preventDefault();
       var cid = document.getElementById('tx-customer').value;
       if(!cid) return alert('Pilih pelanggan!');
       var c = customersCache.find(function(x) { return x.id === cid; });
-      if(!c) return alert('Data pelanggan tidak ditemukan!');
       
       var jasa = [];
-      document.querySelectorAll('#service-items>div').forEach(function(r) {
-        var inputs = r.querySelectorAll('input');
+      document.querySelectorAll('#service-items > div').forEach(function(div) {
+        var inputs = div.querySelectorAll('input');
         if(inputs[0].value && Number(inputs[1].value) > 0) {
           jasa.push({name: inputs[0].value, amount: Number(inputs[1].value)});
         }
       });
       
       var parts = [];
-      var stockUpdates = [];
-      var partRows = document.querySelectorAll('.part-row');
-      
-      for(var i = 0; i < partRows.length; i++) {
-        var r = partRows[i];
-        var type = r.querySelector('.part-type').value;
-        var qty = Number(r.querySelector('.part-qty').value) || 0;
-        var price = Number(r.querySelector('.part-price').value) || 0;
-        
-        if(qty <= 0 || price <= 0) continue;
-        
-        if(type === 'gudang') {
-          var partId = r.querySelector('.part-select').value;
-          
-          // 🔥 VALIDASI KETAT: Jika tidak dipilih, STOP
-          if(!partId) {
-            alert("⚠️ Salah satu baris sparepart belum dipilih dari Gudang!");
-            return;
+      document.querySelectorAll('.part-select').forEach(function(sel) {
+        var qty = Number(sel.parentElement.querySelector('.part-qty').value) || 0;
+        if(sel.value && qty > 0) {
+          var part = partsCache.find(function(p) { return p.id === sel.value; });
+          if(part) {
+            parts.push({name: part.name, qty: qty, price: Number(sel.dataset.price)});
           }
-
-          var partData = partsCache.find(function(x) { return x.id === partId; });
-          
-          if(!partData) {
-            alert("Error: Data sparepart tidak ditemukan. Coba refresh halaman.");
-            return;
-          }
-          
-          if(qty > partData.stock) {
-            return alert('Stok ' + partData.name + ' tidak cukup! Tersedia: ' + partData.stock + ', Dibutuhkan: ' + qty);
-          }
-          
-          parts.push({
-            name: partData.name,
-            qty: qty,
-            price: price,
-            source: 'gudang',
-            partId: partId
-          });
-          
-          stockUpdates.push({
-            id: partId,
-            qty: qty,
-            name: partData.name
-          });
-          
-          console.log('Prepared stock update:', {id: partId, qty: qty, name: partData.name});
-        } else {
-          parts.push({
-            name: r.querySelector('.part-manual').value,
-            qty: qty,
-            price: price,
-            source: 'manual'
-          });
         }
-      }
-      
-      if(jasa.length === 0 && parts.length === 0) return alert('Minimal isi Jasa atau Sparepart!');
+      });
       
       var pay = document.getElementById('tx-pay').value;
       var tot = calcTotal();
-      var remaining = pay === 'bon' ? (tot.j + tot.p) : 0;
       
       var tx = {
         type: 'income',
         customerId: cid,
         customerName: c.name,
-        plate: c.plate,
+        plate: c.plate || '',
         jasa: jasa,
         parts: parts,
-        jasaTotal: tot.j,
-        partsTotal: tot.p,
         total: tot.j + tot.p,
         payment: pay,
         date: document.getElementById('tx-date').value,
         status: pay === 'bon' ? 'belum_lunas' : 'lunas',
         paidAmount: pay === 'bon' ? 0 : (tot.j + tot.p),
-        remainingAmount: remaining
+        remainingAmount: pay === 'bon' ? (tot.j + tot.p) : 0
       };
       
-      try {
-        console.log('Saving transaction...', tx);
-        
-        var ref = await add('transactions', tx);
-        console.log('Transaction saved with ID:', ref.id);
-        
-        if(pay === 'bon') {
-          await add('receivables', {
-            transactionId: ref.id,
-            customerId: cid,
-            amount: tx.total,
-            status: 'unpaid',
-            date: tx.date
-          });
-        }
-        
-        // 🔥 PROSES PENGURANGAN STOK
-        if(stockUpdates.length > 0) {
-          console.log('Processing stock updates...');
-          var successMsgs = [];
-          for(var j = 0; j < stockUpdates.length; j++) {
-            var update = stockUpdates[j];
-            console.log('Reducing stock for ' + update.name + ' (' + update.id + ') by ' + update.qty);
-            var partRef = doc(db, 'garages', garageId, 'spareparts', update.id);
-            await updateDoc(partRef, {
-              stock: increment(-update.qty)
-            });
-            successMsgs.push(update.name + ' (-' + update.qty + ')');
-          }
-          alert('✅ Stok berhasil dikurangi untuk: ' + successMsgs.join(', '));
-        }
-        
-        // 🔥 CETAK NOTA DENGAN TAB BARU
-        showReceipt(tx, c, ref.id);
-        
-        document.getElementById('tx-form').reset();
-        document.getElementById('service-items').innerHTML = '';
-        document.getElementById('part-items').innerHTML = '';
-        document.getElementById('tx-date').value = today;
-        calcTotal();
-        
-        if(stockUpdates.length === 0) alert('Transaksi disimpan!');
-        
-        await refreshAll();
-      } catch(err) {
-        console.error('Error saving transaction:', err);
-        alert('Error: ' + err.message);
-      }
+      await add('transactions', tx);
+      alert('Transaksi disimpan!');
+      document.getElementById('tx-form').reset();
+      document.getElementById('service-items').innerHTML = '';
+      document.getElementById('part-items').innerHTML = '';
+      await refreshAll();
     };
 
-    // RENDER FUNCTIONS
     var renderCustomers = function() {
-      var el = document.getElementById('cust-list');
-      var loadEl = document.getElementById('cust-loading');
-      if(customersCache.length === 0) {
-        loadEl.style.display = 'block';
-        el.style.display = 'none';
-      } else {
-        loadEl.style.display = 'none';
-        el.style.display = 'grid';
-        el.innerHTML = customersCache.map(function(c) {
-          return '<div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-400"><h3 class="font-bold text-lg">' + c.name + '</h3><p class="text-slate-600 text-sm">' + c.phone + '</p><p class="text-slate-600 text-sm mt-1">' + c.plate + ' | ' + c.model + ' ' + c.year + '</p><button onclick="del(\'customers\',\'' + c.id + '\')" class="mt-3 text-xs text-red-500 hover:underline">Hapus</button></div>';
-        }).join('');
-      }
-      document.getElementById('tx-customer').innerHTML = '<option value="">-- Pilih --</option>' + customersCache.map(function(c) {
-        return '<option value="' + c.id + '">' + c.name + ' - ' + c.plate + '</option>';
+      document.getElementById('cust-list').innerHTML = customersCache.map(function(c) {
+        return '<div class="bg-white p-4 rounded-xl shadow"><h3 class="font-bold">' + c.name + '</h3><p>' + c.phone + '</p><p>' + (c.plate || '') + '</p></div>';
+      }).join('');
+      
+      document.getElementById('tx-customer').innerHTML = '<option value="">Pilih Pelanggan</option>' + customersCache.map(function(c) {
+        return '<option value="' + c.id + '">' + c.name + '</option>';
       }).join('');
     };
-    
+
     var renderWarehouse = function() {
       document.getElementById('warehouse-list').innerHTML = partsCache.map(function(p) {
-        var alertClass = p.stock <= (p.minStock || 5) ? 'alert-row' : '';
-        var stockClass = p.stock <= (p.minStock || 5) ? 'stock-low' : '';
-        return '<tr class="hover:bg-slate-50 ' + alertClass + '"><td class="p-4 font-medium">' + p.name + '</td><td class="p-4">' + p.unit + '</td><td class="p-4 text-right ' + stockClass + '">' + p.stock + '</td><td class="p-4 text-right">' + (p.minStock || 5) + '</td><td class="p-4 text-right">' + fmt(p.price) + '</td><td class="p-4 text-center"><button onclick="del(\'spareparts\',\'' + p.id + '\')" class="text-red-500 hover:underline">Hapus</button></td></tr>';
-      }).join('') || '<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>';
-      updateAllPartDropdowns();
-      document.getElementById('parts-count').textContent = '(' + partsCache.length + ' item)';
+        return '<tr><td class="p-4">' + p.name + '</td><td class="p-4 text-right">' + p.stock + '</td><td class="p-4 text-right">' + fmt(p.price) + '</td></tr>';
+      }).join('');
     };
-    
-    var renderExpenses = function() {
-      var list = txCache.filter(function(t) {
-        return t.type === 'expense' && t.category === 'operational';
-      });
-      document.getElementById('expense-list').innerHTML = list.map(function(t) {
-        var badgeClass = t.payment === 'cash' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
-        return '<tr><td class="p-4">' + t.date + '</td><td class="p-4">' + (t.description || '-') + '</td><td class="p-4 text-xs text-slate-500">' + t.category + '</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ' + badgeClass + '">' + t.payment.toUpperCase() + '</span></td><td class="p-4 text-right font-bold text-red-600">' + fmt(t.amount) + '</td><td class="p-4 text-center"><button onclick="del(\'transactions\',\'' + t.id + '\')" class="text-red-500 hover:underline">Hapus</button></td></tr>';
-      }).join('') || '<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>';
+
+    var renderHistory = function() {
+      document.getElementById('history-list').innerHTML = txCache.filter(function(t) { return t.type === 'income'; }).map(function(t) {
+        return '<div class="bg-white p-4 rounded-xl shadow mb-2"><p><b>' + t.date + '</b> - ' + t.customerName + '</p><p>Total: ' + fmt(t.total) + ' - ' + t.payment.toUpperCase() + '</p></div>';
+      }).join('');
     };
-    
-    window.filterHistory = function(f) {
-      var list = txCache.filter(function(t) {
-        return t.type === 'income' && (f === 'month' ? t.date.startsWith(today.slice(0,7)) : true);
-      });
-      document.getElementById('history-list').innerHTML = list.length ? list.map(function(t) {
-        var jasaNames = (t.jasa || []).map(function(j) { return j.name; });
-        var partDetails = (t.parts || []).map(function(p) { return p.name + 'x' + p.qty; });
-        var d = jasaNames.concat(partDetails).join(', ');
-        var isUnpaid = t.status === 'belum_lunas' && Number(t.remainingAmount) > 0;
-        var rowClass = isUnpaid ? 'bg-amber-50/50' : '';
-        var badgeClass = t.payment === 'cash' ? 'bg-green-100 text-green-700' : (t.payment === 'transfer' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700');
-        var sisaClass = isUnpaid ? 'text-red-600 font-bold' : 'text-emerald-600';
-        var actionBtn = isUnpaid ? '<button onclick="openSettle(\'' + t.id + '\')" class="btn-sticky bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold">LUNASI</button>' : '<span class="text-xs text-emerald-600 font-medium">LUNAS</span>';
-        
-        return '<tr class="' + rowClass + '"><td class="p-4">' + t.date + '</td><td class="p-4">' + t.customerName + '<br><span class="text-xs text-slate-500">' + t.plate + '</span></td><td class="p-4 text-xs">' + d + '</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ' + badgeClass + '">' + t.payment.toUpperCase() + '</span></td><td class="p-4 text-right"><div class="text-sm">Total: ' + fmt(t.total) + '</div><div class="text-xs ' + sisaClass + '">Sisa: ' + fmt(t.remainingAmount) + '</div></td><td class="p-4 text-center flex flex-col gap-2 items-center">' + actionBtn + '<button onclick="reprint(\'' + t.id + '\')" class="text-xs text-amber-600 hover:underline">Cetak</button></td></tr>';
-      }).join('') : '<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada transaksi</td></tr>';
-    };
-    
+
     var renderReceivables = function() {
-      document.getElementById('rec-list').innerHTML = recCache.map(function(x) {
-        return '<div class="bg-white p-4 rounded-xl shadow border border-amber-200 bg-amber-50/30"><div class="flex justify-between items-start"><h3 class="font-bold text-lg">' + fmt(x.amount) + '</h3><span class="text-xs text-amber-700 bg-amber-200 px-2 py-1 rounded">BELUM LUNAS</span></div><p class="text-sm text-slate-600 mt-2">' + x.date + '</p><button onclick="openSettle(\'' + x.transactionId + '\')" class="btn-sticky mt-3 w-full bg-emerald-500 text-white py-2 rounded-lg text-sm font-bold">LUNASI HUTANG</button></div>';
-      }).join('') || '<p class="text-slate-400 text-center py-8">Tidak ada piutang</p>';
-    };
-    
-    window.openSettle = function(id) {
-      settleTxId = id;
-      var tx = txCache.find(function(t) { return t.id === id; });
-      if(!tx) return alert('Data tidak ditemukan');
-      document.getElementById('settle-total').textContent = fmt(tx.total);
-      document.getElementById('settle-paid').textContent = fmt(tx.paidAmount || 0);
-      document.getElementById('settle-remaining').textContent = fmt(tx.remainingAmount || tx.total);
-      document.getElementById('settle-amount').value = '';
-      openModal('settle');
-    };
-    
-    window.confirmSettle = async function() {
-      var payAmt = Number(document.getElementById('settle-amount').value);
-      var method = document.getElementById('settle-method').value;
-      if(!payAmt || payAmt <= 0) return alert('Masukkan nominal valid!');
-      var tx = txCache.find(function(t) { return t.id === settleTxId; });
-      if(!tx) return alert('Transaksi tidak ditemukan');
-      if(payAmt > tx.remainingAmount) return alert('Nominal melebihi sisa hutang!');
-      try {
-        var newPaid = (Number(tx.paidAmount) || 0) + payAmt;
-        var newRemaining = Number(tx.total) - newPaid;
-        var newStatus = newRemaining <= 0 ? 'lunas' : 'belum_lunas';
-        await upd('transactions', tx.id, {
-          paidAmount: newPaid,
-          remainingAmount: newRemaining,
-          status: newStatus,
-          settledMethod: method,
-          settledAt: serverTimestamp()
-        });
-        if(newRemaining <= 0) {
-          var rec = recCache.find(function(r) { return r.transactionId === tx.id; });
-          if(rec) await upd('receivables', rec.id, {
-            status: 'paid',
-            paidAt: serverTimestamp(),
-            paidMethod: method
-          });
-        }
-        closeModal('settle');
-        showSettlementReceipt(tx, customersCache.find(function(c) { return c.id === tx.customerId; }), method, payAmt, newRemaining);
-        await refreshAll();
-      } catch(e) {
-        alert('Gagal: ' + e.message);
-      }
-    };
-
-    window.filterReport = function(f) {
-      filterHistory(f);
-      calcStats(f);
-    };
-    
-    // 🔥 PRINT FUNCTIONS (TAB BARU)
-    window.showReceipt = function(tx, c, id) {
-      var jasaRows = (tx.jasa || []).map(function(j) {
-        return '<tr><td>' + j.name + '</td><td style="text-align:right;">' + fmt(j.amount) + '</td></tr>';
+      document.getElementById('rec-list').innerHTML = recCache.filter(function(r) { return r.status === 'unpaid'; }).map(function(r) {
+        return '<div class="bg-white p-4 rounded-xl shadow mb-2"><p>' + r.date + ' - ' + fmt(r.amount) + '</p></div>';
       }).join('');
-      var partRows = (tx.parts || []).map(function(p) {
-        return '<tr><td>' + p.name + ' x' + p.qty + '</td><td style="text-align:right;">' + fmt(p.price * p.qty) + '</td></tr>';
-      }).join('');
-      
-      var html = '<!DOCTYPE html><html><head><title>Nota</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin:10px 0;}th,td{padding:5px;text-align:left;border-bottom:1px solid #eee;}th{text-align:left;}</style></head><body>';
-      html += '<h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2>';
-      html += '<p style="text-align:center;font-size:12px;color:#666;">Nota Service</p>';
-      html += '<hr/>';
-      html += '<p><b>Tgl:</b> ' + tx.date + '<br><b>ID:</b> ' + id.slice(-6) + '<br><b>Pelanggan:</b> ' + c.name + ' | ' + tx.plate + '</p>';
-      html += '<table><tr><th>Item</th><th style="text-align:right;">Total</th></tr>' + jasaRows + partRows + '<tr style="border-top:2px solid #000;"><td><b>TOTAL</b></td><td style="text-align:right;"><b>' + fmt(tx.total) + '</b></td></tr></table>';
-      html += '<p><b>Bayar:</b> ' + tx.payment.toUpperCase() + ' | <b>Status:</b> ' + tx.status.toUpperCase() + '</p>';
-      html += '<hr/><p style="text-align:center;font-size:11px;">Terima kasih.</p>';
-      html += '</body></html>';
-      
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write(html);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
     };
 
-    window.showSettlementReceipt = function(tx, c, method, paidAmt, remaining) {
-      var html = '<!DOCTYPE html><html><head><title>Pelunasan</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;margin:10px 0;}th,td{padding:5px;text-align:left;border-bottom:1px solid #eee;}</style></head><body>';
-      html += '<h2 style="text-align:center;margin:0;color:#166534;">BUKTI PELUNASAN</h2>';
-      html += '<p style="text-align:center;font-size:12px;color:#166534;">Je Garage Pro</p>';
-      html += '<hr style="border-color:#22c55e;"/>';
-      html += '<p><b>Tgl Bayar:</b> ' + new Date().toLocaleDateString('id-ID') + '<br><b>Pelanggan:</b> ' + c.name + ' | ' + tx.plate + '</p>';
-      html += '<table><tr><td><b>Dibayar</b></td><td style="text-align:right;">' + fmt(paidAmt) + '</td></tr><tr><td><b>Sisa</b></td><td style="text-align:right;">' + fmt(remaining) + '</td></tr><tr style="border-top:2px solid #166534;"><td><b>STATUS</b></td><td style="text-align:right;color:#166534;"><b>' + (remaining <= 0 ? 'LUNAS ✅' : 'PARTIAL ⏳') + '</b></td></tr></table>';
-      html += '</body></html>';
-      
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write(html);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    };
-
-    window.reprint = function(id) {
-      var t = txCache.find(function(x) { return x.id === id; });
-      if(t) showReceipt(t, customersCache.find(function(x) { return x.id === t.customerId; }), id);
-    };
-
-    var getFilteredTx = function(range) {
-      return txCache.filter(function(t) {
-        if(!t.type || t.type !== 'income') return false;
-        if(range === 'today') return t.date === today;
-        if(range === 'month') return t.date.startsWith(today.slice(0,7));
-        return true;
-      });
-    };
-
-    window.printHistory = function(range) {
-      var data = getFilteredTx(range);
-      var label = range === 'today' ? 'Hari Ini (' + today + ')' : (range === 'month' ? 'Bulan Ini (' + today.slice(0,7) + ')' : 'Semua Periode');
-      var total = 0;
-      var rows = data.map(function(t) {
-        total += Number(t.total) || 0;
-        var det = (t.jasa || []).map(function(j) { return j.name; }).concat((t.parts || []).map(function(p) { return p.name + 'x' + p.qty; })).join(', ');
-        return '<tr style="border-bottom:1px solid #eee;"><td style="padding:8px 4px;">' + t.date + '</td><td style="padding:8px 4px;">' + t.customerName + '</td><td style="padding:8px 4px;">' + t.plate + '</td><td style="padding:8px 4px;">' + det + '</td><td style="padding:8px 4px;">' + t.payment.toUpperCase() + '</td><td style="padding:8px 4px; text-align:right;">' + fmt(t.total) + '</td></tr>';
-      }).join('');
-
-      var html = '<!DOCTYPE html><html><head><title>Laporan Histori</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;font-size:12px;}th,td{padding:8px 4px;border-bottom:1px solid #eee;}th{text-align:left;background:#f8fafc;}</style></head><body>';
-      html += '<h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2>';
-      html += '<h3 style="text-align:center;margin:0 0 20px;color:#555;font-weight:normal;">Laporan Histori Transaksi - ' + label + '</h3>';
-      html += '<table><thead><tr><th>Tgl</th><th>Pelanggan</th><th>Plat</th><th>Detail</th><th>Bayar</th><th style="text-align:right;">Nominal</th></tr></thead><tbody>' + rows + '</tbody>';
-      html += '<tfoot><tr style="font-weight:bold;background:#f1f5f9;"><td colspan="5" style="text-align:right;">TOTAL PENDAPATAN</td><td style="text-align:right;">' + fmt(total) + '</td></tr></tfoot></table></body></html>';
-
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write(html);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    };
-
-    window.printReport = function(range) {
-      var data = getFilteredTx(range);
-      var label = range === 'today' ? 'Hari Ini (' + today + ')' : (range === 'month' ? 'Bulan Ini (' + today.slice(0,7) + ')' : 'Semua Periode');
-      var cashIn = 0, bankIn = 0, bonTotal = 0, cashOut = 0, bankOut = 0;
-      
-      data.forEach(function(t) {
-        if(t.status === 'lunas') {
-          if(t.payment === 'cash') cashIn += Number(t.total) || 0;
-          else bankIn += Number(t.total) || 0;
-        } else {
-          bonTotal += Number(t.remainingAmount) || 0;
-        }
-      });
-      
-      txCache.filter(function(t) { return t.type === 'expense' && t.category === 'operational'; }).forEach(function(t) {
-        var match = range === 'all' ? true : (range === 'today' ? t.date === today : t.date.startsWith(today.slice(0,7)));
-        if(match) {
-          if(t.payment === 'cash') cashOut += Number(t.amount) || 0;
-          else bankOut += Number(t.amount) || 0;
-        }
-      });
-
-      var html = '<!DOCTYPE html><html><head><title>Laporan Keuangan</title><style>body{font-family:sans-serif;padding:20px;}.card{border:1px solid #e2e8f0;padding:15px;border-radius:8px;margin-bottom:15px;}</style></head><body>';
-      html += '<h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2>';
-      html += '<h3 style="text-align:center;margin:0 0 25px;color:#555;font-weight:normal;">Laporan Keuangan - ' + label + '</h3>';
-      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">';
-      html += '<div class="card"><h4 style="margin:0 0 10px;color:#059669;">💰 Pemasukan</h4>';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Tunai Masuk:</span><b>' + fmt(cashIn) + '</b></div>';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Transfer Masuk:</span><b>' + fmt(bankIn) + '</b></div>';
-      html += '<hr style="margin:8px 0;border:0;border-top:1px solid #eee;">';
-      html += '<div style="display:flex;justify-content:space-between;font-weight:bold;"><span>Total Masuk:</span><span>' + fmt(cashIn + bankIn) + '</span></div></div>';
-      
-      html += '<div class="card"><h4 style="margin:0 0 10px;color:#dc2626;">💸 Pengeluaran</h4>';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Tunai Keluar:</span><b>' + fmt(cashOut) + '</b></div>';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Transfer Keluar:</span><b>' + fmt(bankOut) + '</b></div>';
-      html += '<hr style="margin:8px 0;border:0;border-top:1px solid #eee;">';
-      html += '<div style="display:flex;justify-content:space-between;font-weight:bold;"><span>Total Keluar:</span><span>' + fmt(cashOut + bankOut) + '</span></div></div>';
-      
-      html += '<div class="card" style="background:#f0fdf4;"><h4 style="margin:0 0 10px;">💵 Saldo Bersih</h4>';
-      html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Kas Tunai:</span><b style="color:#059669">' + fmt(cashIn - cashOut) + '</b></div>';
-      html += '<div style="display:flex;justify-content:space-between;"><span>Saldo Bank:</span><b style="color:#2563eb">' + fmt(bankIn - bankOut) + '</b></div></div>';
-      
-      html += '<div class="card" style="background:#fffbeb;"><h4 style="margin:0 0 10px;">📝 Piutang</h4>';
-      html += '<div style="display:flex;justify-content:space-between;"><span>Sisa Belum Lunas:</span><b style="color:#d97706">' + fmt(bonTotal) + '</b></div></div>';
-      html += '</div></body></html>';
-
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write(html);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    };
-
-    window.calcStats = function(f) {
-      var cashIn = 0, bankIn = 0, cashOut = 0, bankOut = 0, unpaid = 0;
+    var calcStats = function() {
+      var cashIn = 0, bankIn = 0, unpaid = 0, expenses = 0;
       txCache.forEach(function(t) {
-        if(!t.type || !t.date) return;
         if(t.type === 'income') {
-          if(t.status === 'belum_lunas') unpaid += Number(t.remainingAmount) || 0;
-          if(t.status === 'lunas' && (f === 'all' || t.date.startsWith(today.slice(0,7)))) {
-            if(t.payment === 'cash') cashIn += Number(t.total) || 0;
-            else bankIn += Number(t.total) || 0;
+          if(t.status === 'lunas') {
+            if(t.payment === 'cash') cashIn += t.total;
+            else bankIn += t.total;
+          } else {
+            unpaid += t.remainingAmount || 0;
           }
         } else if(t.type === 'expense') {
-          if(t.payment === 'cash') cashOut += Number(t.amount) || 0;
-          else bankOut += Number(t.amount) || 0;
+          expenses += t.amount || 0;
         }
       });
-      document.getElementById('d-cash').textContent = fmt(cashIn - cashOut);
-      document.getElementById('d-bank').textContent = fmt(bankIn - bankOut);
+      document.getElementById('d-cash').textContent = fmt(cashIn);
+      document.getElementById('d-bank').textContent = fmt(bankIn);
       document.getElementById('d-receivables').textContent = fmt(unpaid);
-      document.getElementById('d-expenses').textContent = fmt(cashOut + bankOut);
-      document.getElementById('rep-cash-in').textContent = fmt(cashIn);
-      document.getElementById('rep-bank-in').textContent = fmt(bankIn);
+      document.getElementById('d-expenses').textContent = fmt(expenses);
       document.getElementById('rep-total-in').textContent = fmt(cashIn + bankIn);
-      document.getElementById('rep-cash-out').textContent = fmt(cashOut);
-      document.getElementById('rep-bank-out').textContent = fmt(bankOut);
-      document.getElementById('rep-total-out').textContent = fmt(cashOut + bankOut);
-      document.getElementById('rep-net-cash').textContent = fmt(cashIn - cashOut);
-      document.getElementById('rep-net-bank').textContent = fmt(bankIn - bankOut);
-      document.getElementById('rep-unpaid').textContent = fmt(unpaid);
+      document.getElementById('rep-total-out').textContent = fmt(expenses);
     };
 
     async function refreshAll() {
       if(!user || !garageId) return;
-      try {
-        var results = await Promise.all([
-          load('customers'),
-          load('transactions'),
-          load('spareparts'),
-          load('receivables', {where: {f: 'status', op: '==', v: 'unpaid'}})
-        ]);
-        customersCache = results[0];
-        txCache = results[1];
-        partsCache = results[2];
-        recCache = results[3];
-        renderCustomers();
-        renderWarehouse();
-        renderExpenses();
-        filterHistory('all');
-        renderReceivables();
-        calcStats('all');
-        if(role === 'admin') renderTeam();
-      } catch(err) {
-        console.error('Refresh Error:', err);
-      }
+      customersCache = await load('customers');
+      txCache = await load('transactions');
+      partsCache = await load('spareparts');
+      recCache = await load('receivables');
+      renderCustomers();
+      renderWarehouse();
+      renderHistory();
+      renderReceivables();
+      calcStats();
     }
+
     window.refreshAll = refreshAll;
   </script>
 </body>
