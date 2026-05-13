@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Je Garage Pro - Final Premium</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Je Garage Pro - Mobile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -12,10 +12,8 @@
     @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-50; align-items: center; justify-content: center; padding: 1rem; }
     .modal.open { display: flex; }
-    .alert-row { background: #fef2f2; border-left: 4px solid #ef4444; }
-    .stock-low { color: #dc2626; font-weight: bold; }
-    .btn-sticky { position: relative; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    /* Fix input zoom on mobile */
+    input, select, textarea { font-size: 16px !important; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -26,7 +24,7 @@
       <div class="text-center mb-6">
         <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">JG</div>
         <h1 class="text-2xl font-bold">Je Garage Pro</h1>
-        <p class="text-slate-500 text-sm">Final Premium Edition</p>
+        <p class="text-slate-500 text-sm">Mobile Edition</p>
       </div>
       <form id="login-form" class="space-y-4">
         <input type="email" id="email" placeholder="Email" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-amber-500 outline-none">
@@ -42,7 +40,7 @@
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
       <h2 class="text-xl font-bold mb-4 text-center">Setup Garage / Masuk Tim</h2>
       <div class="space-y-4">
-        <button onclick="showGarageForm('create')" class="w-full bg-amber-500 text-white py-3 rounded-xl font-medium hover:bg-amber-600">+ Buat Garage Baru (Admin)</button>
+        <button onclick="showGarageForm('create')" class="w-full bg-amber-500 text-white py-3 rounded-xl font-medium hover:bg-amber-600">+ Buat Garage Baru</button>
         <div class="text-center text-slate-400">atau</div>
         <button onclick="showGarageForm('join')" class="w-full bg-slate-700 text-white py-3 rounded-xl font-medium hover:bg-slate-600">Gabung Garage (Kode)</button>
       </div>
@@ -57,30 +55,53 @@
     </div>
   </div>
 
-  <!-- APP -->
-  <div id="app-screen" class="hidden min-h-screen flex flex-col md:flex-row">
-    <aside class="w-full md:w-64 bg-slate-900 text-white p-4 md:fixed md:h-full z-10">
-      <div class="flex items-center gap-3 mb-6 px-2">
+  <!-- MOBILE HEADER (Hamburger) -->
+  <header class="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between sticky top-0 z-30 shadow-md">
+    <button onclick="toggleSidebar()" class="p-2 hover:bg-white/10 rounded transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <span class="font-bold text-lg">Je Garage Pro</span>
+    <button onclick="nav('dashboard')" class="p-2 hover:bg-white/10 rounded">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- SIDEBAR (Hidden on Mobile) -->
+  <aside id="sidebar" class="w-64 bg-slate-900 text-white p-4 fixed inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
+    <div class="flex items-center justify-between mb-6">
+       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center font-bold">JG</div>
         <div><h1 class="font-bold" id="sidebar-garage">Garage</h1><p class="text-xs text-slate-400" id="sidebar-role">Role: Admin</p></div>
-      </div>
-      <nav class="space-y-2">
-        <button onclick="nav('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">Dashboard</button>
-        <button onclick="nav('warehouse')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Gudang</button>
-        <button onclick="nav('customers')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Pelanggan</button>
-        <button onclick="nav('new-tx')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Input Service</button>
-        <button onclick="nav('expenses')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Operasional</button>
-        <button onclick="nav('history')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Histori</button>
-        <button onclick="nav('reports')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Laporan</button>
-        <button onclick="nav('receivables')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">Piutang</button>
-        <button onclick="nav('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">Pengaturan</button>
-      </nav>
-      <button onclick="logout()" class="mt-6 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400">Logout</button>
-    </aside>
+       </div>
+       <button onclick="toggleSidebar()" class="md:hidden p-2 hover:bg-white/10 rounded">X</button>
+    </div>
+    <nav class="space-y-2 flex-1 overflow-y-auto">
+      <button onclick="nav('dashboard'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">📊 Dashboard</button>
+      <button onclick="nav('warehouse'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📦 Gudang</button>
+      <button onclick="nav('customers'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">👥 Pelanggan</button>
+      <button onclick="nav('new-tx'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">🔧 Input Service</button>
+      <button onclick="nav('expenses'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">💸 Operasional</button>
+      <button onclick="nav('history'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📜 Histori</button>
+      <button onclick="nav('reports'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📈 Laporan</button>
+      <button onclick="nav('receivables'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300">📝 Piutang</button>
+      <button onclick="nav('settings'); toggleSidebar()" class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-slate-300 admin-only hidden">⚙️ Pengaturan</button>
+    </nav>
+    <button onclick="logout()" class="mt-6 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400">🚪 Logout</button>
+  </aside>
 
-    <main class="flex-1 md:ml-64 p-4 md:p-8 pb-24">
+  <!-- OVERLAY -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+  <!-- APP CONTENT -->
+  <div class="flex flex-col min-h-screen md:ml-64">
+    <main class="flex-1 p-4 md:p-8 pb-24">
+      
       <div id="dashboard" class="page active">
-        <h2 class="text-2xl font-bold mb-6">Dashboard Keuangan</h2>
+        <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-purple-500"><p class="text-sm text-slate-500">Kas Tunai Bersih</p><p id="d-cash" class="text-xl font-bold text-purple-600">Rp 0</p></div>
           <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-blue-500"><p class="text-sm text-slate-500">Saldo Bank Bersih</p><p id="d-bank" class="text-xl font-bold text-blue-600">Rp 0</p></div>
@@ -97,37 +118,32 @@
             <button onclick="openModal('part')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">Tambah</button>
           </div>
         </div>
-        <div class="bg-white rounded-2xl shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Nama</th><th class="p-4 text-left">Satuan</th><th class="p-4 text-right">Stok</th><th class="p-4 text-right">Min</th><th class="p-4 text-right">Harga</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="warehouse-list" class="divide-y"></tbody></table></div>
+        <div class="bg-white rounded-2xl shadow overflow-x-auto"><table class="w-full text-sm min-w-[500px]"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Nama</th><th class="p-4 text-left">Satuan</th><th class="p-4 text-right">Stok</th><th class="p-4 text-right">Harga</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="warehouse-list" class="divide-y"></tbody></table></div>
       </div>
 
       <div id="customers" class="page">
-        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Data Pelanggan & Kendaraan</h2><button onclick="openModal('cust')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">Tambah</button></div>
+        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Pelanggan</h2><button onclick="openModal('cust')" class="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition">Tambah</button></div>
         <div id="cust-loading" class="text-center py-8 text-slate-500">Memuat data...</div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cust-list" style="display:none;"></div>
       </div>
 
       <div id="new-tx" class="page">
-        <h2 class="text-2xl font-bold mb-6">Input Service & Sparepart</h2>
+        <h2 class="text-2xl font-bold mb-6">Input Service</h2>
         <form id="tx-form" class="bg-white p-6 rounded-2xl shadow space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Pilih Pelanggan</label>
-              <select id="tx-customer" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required>
-                <option value="">-- Pilih Pelanggan --</option>
-              </select>
-            </div>
+            <div><label class="block text-sm font-medium mb-1">Pilih Pelanggan</label><select id="tx-customer" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="">-- Pilih Pelanggan --</option></select></div>
             <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="date" id="tx-date" class="w-full px-4 py-3 rounded-xl border border-gray-200" required></div>
           </div>
-          <div class="border-t pt-4"><h3 class="font-semibold mb-2">Jasa Service</h3><div id="service-items" class="space-y-2"><div class="grid grid-cols-[1fr_80px_30px] gap-2"><input type="text" placeholder="Nama Jasa" class="px-3 py-2 rounded-lg border"><input type="number" placeholder="Harga" class="px-3 py-2 rounded-lg border tx-jasa" oninput="calcTotal()"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">X</button></div></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
+          <div class="border-t pt-4"><h3 class="font-semibold mb-2">Jasa Service</h3><div id="service-items" class="space-y-2"></div><button type="button" onclick="addServiceRow()" class="mt-2 text-sm text-amber-600 hover:underline">+ Tambah Jasa</button></div>
           
           <div class="border-t pt-4">
-            <h3 class="font-semibold mb-2 flex items-center gap-2">Sparepart / Bahan <span id="parts-count" class="text-xs text-slate-500 font-normal">(0 item)</span></h3>
+            <h3 class="font-semibold mb-2">Sparepart / Bahan <span id="parts-count" class="text-xs text-slate-500 font-normal">(0 item)</span></h3>
             <div id="part-items" class="space-y-2"></div>
-            <button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline flex items-center gap-1"><span>+</span> Tambah Sparepart/Bahan</button>
+            <button type="button" onclick="addPartRow()" class="mt-2 text-sm text-blue-600 hover:underline">+ Tambah Sparepart</button>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-            <div><label class="block text-sm font-medium mb-1">Metode Pembayaran</label><select id="tx-pay" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="cash">💵 Tunai</option><option value="transfer">🏦 Transfer Bank</option><option value="bon">📝 Bon / Kredit</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">Metode Bayar</label><select id="tx-pay" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" required><option value="cash">💵 Tunai</option><option value="transfer">🏦 Transfer</option><option value="bon">📝 Bon / Kredit</option></select></div>
             <div><label class="block text-sm font-medium mb-1">Grand Total</label><input type="text" id="tx-total" readonly class="w-full px-4 py-3 rounded-xl bg-slate-100 font-bold text-lg text-slate-800"></div>
           </div>
           <button type="submit" class="w-full bg-slate-800 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">Simpan & Cetak Nota</button>
@@ -135,8 +151,8 @@
       </div>
 
       <div id="expenses" class="page">
-        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Pengeluaran Operasional</h2><button onclick="openModal('expense')" class="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition">Catat Pengeluaran</button></div>
-        <div class="bg-white rounded-2xl shadow overflow-x-auto"><table class="w-full text-sm min-w-[600px]"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Tanggal</th><th class="p-4 text-left">Kategori</th><th class="p-4 text-left">Keterangan</th><th class="p-4 text-left">Bayar Via</th><th class="p-4 text-right">Nominal</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="expense-list" class="divide-y"></tbody></table></div>
+        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Pengeluaran</h2><button onclick="openModal('expense')" class="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition">Catat</button></div>
+        <div class="bg-white rounded-2xl shadow overflow-x-auto"><table class="w-full text-sm min-w-[600px]"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-4 text-left">Tgl</th><th class="p-4 text-left">Ket</th><th class="p-4 text-left">Via</th><th class="p-4 text-right">Nominal</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="expense-list" class="divide-y"></tbody></table></div>
       </div>
 
       <div id="history" class="page">
@@ -156,7 +172,7 @@
       </div>
 
       <div id="reports" class="page">
-        <h2 class="text-2xl font-bold mb-4">Laporan Keuangan</h2>
+        <h2 class="text-2xl font-bold mb-4">Laporan</h2>
         <div class="flex flex-wrap gap-2 mb-4">
           <button onclick="printReport('today')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Hari Ini</button>
           <button onclick="printReport('month')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-1">Cetak Bulan Ini</button>
@@ -168,20 +184,19 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Pemasukan</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Masuk</span><span id="rep-cash-in" class="font-bold text-purple-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Masuk</span><span id="rep-bank-in" class="font-bold text-blue-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Masuk</span><span id="rep-total-in">Rp 0</span></div></div>
-          <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Pengeluaran Operasional</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Keluar</span><span id="rep-cash-out" class="font-bold text-red-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Keluar</span><span id="rep-bank-out" class="font-bold text-red-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Keluar</span><span id="rep-total-out">Rp 0</span></div></div>
+          <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Pengeluaran</h3><div class="flex justify-between text-sm mb-2"><span>Tunai Keluar</span><span id="rep-cash-out" class="font-bold text-red-600">Rp 0</span></div><div class="flex justify-between text-sm mb-2"><span>Transfer Keluar</span><span id="rep-bank-out" class="font-bold text-red-600">Rp 0</span></div><div class="border-t pt-2 flex justify-between font-bold"><span>Total Keluar</span><span id="rep-total-out">Rp 0</span></div></div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Saldo Riil</h3><div class="grid grid-cols-2 gap-4"><div class="flex justify-between"><span>Kas Tunai Bersih</span><span id="rep-net-cash" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between"><span>Saldo Bank Bersih</span><span id="rep-net-bank" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between col-span-2 border-t pt-3"><span>Sisa Piutang (Belum Lunas)</span><span id="rep-unpaid" class="font-bold text-amber-600">Rp 0</span></div></div></div>
+        <div class="bg-white p-5 rounded-2xl shadow"><h3 class="font-semibold mb-3">Saldo Riil</h3><div class="grid grid-cols-2 gap-4"><div class="flex justify-between"><span>Kas Tunai</span><span id="rep-net-cash" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between"><span>Bank</span><span id="rep-net-bank" class="font-bold text-emerald-600">Rp 0</span></div><div class="flex justify-between col-span-2 border-t pt-3"><span>Piutang</span><span id="rep-unpaid" class="font-bold text-amber-600">Rp 0</span></div></div></div>
       </div>
 
       <div id="receivables" class="page">
-        <h2 class="text-2xl font-bold mb-6">Daftar Piutang / Belum Lunas</h2>
+        <h2 class="text-2xl font-bold mb-6">Piutang</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="rec-list"></div>
       </div>
 
       <div id="settings" class="page admin-only hidden">
-        <h2 class="text-2xl font-bold mb-6">Pengaturan Tim & Garage</h2>
+        <h2 class="text-2xl font-bold mb-6">Pengaturan</h2>
         <div class="bg-white p-6 rounded-2xl shadow mb-6"><h3 class="font-semibold mb-4">Kode Garage</h3><div class="flex items-center gap-3 bg-slate-100 p-3 rounded-lg"><code id="garage-code-display" class="flex-1 font-mono text-lg text-center">LOADING...</code><button onclick="copyCode()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700">Copy</button></div></div>
-        <div class="bg-white p-6 rounded-2xl shadow"><h3 class="font-semibold mb-4">Daftar Anggota</h3><form id="team-form" class="flex gap-2 mb-4"><input id="team-email" type="email" placeholder="Email anggota baru" required class="flex-1 px-3 py-2 rounded-lg border"><select id="team-role" class="px-3 py-2 rounded-lg border"><option value="mekanik">Mekanik</option><option value="kasir">Kasir</option><option value="admin">Admin</option></select><button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">Tambah</button></form><ul id="team-list" class="divide-y"></ul></div>
       </div>
     </main>
   </div>
@@ -191,9 +206,9 @@
 
   <div id="modal-part" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">Tambah Sparepart</h3><form id="part-form" class="space-y-4"><input id="p-name" placeholder="Nama Sparepart" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="grid grid-cols-3 gap-3"><input id="p-stock" type="number" placeholder="Stok" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="p-min" type="number" placeholder="Min Stok" value="5" class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="p-unit" placeholder="Satuan" required class="w-full px-4 py-3 rounded-xl border border-gray-200"></div><input id="p-price" type="number" placeholder="Harga Jual" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('part')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
 
-  <div id="modal-settle" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"><h3 class="text-xl font-bold mb-4">Pelunasan Parsial / Penuh</h3><div class="bg-amber-50 p-3 rounded-lg mb-4"><p class="text-sm text-amber-800">Total Hutang: <span id="settle-total" class="font-bold">Rp 0</span></p><p class="text-sm text-amber-800">Sudah Dibayar: <span id="settle-paid" class="font-bold">Rp 0</span></p><p class="text-sm text-amber-800">Sisa Wajib: <span id="settle-remaining" class="font-bold text-red-600">Rp 0</span></p></div><div class="space-y-3"><label class="block text-sm font-medium">Nominal yang akan dilunasi</label><input id="settle-amount" type="number" placeholder="Masukkan jumlah" class="w-full px-4 py-3 rounded-xl border border-gray-200"><label class="block text-sm font-medium mt-2">Metode Pembayaran</label><select id="settle-method" class="w-full px-4 py-3 rounded-xl border border-gray-200"><option value="cash">Tunai</option><option value="transfer">Transfer</option></select></div><div class="flex gap-3 mt-4"><button onclick="closeModal('settle')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button onclick="confirmSettle()" class="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-medium">Konfirmasi</button></div></div></div>
+  <div id="modal-settle" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"><h3 class="text-xl font-bold mb-4">Lunasi Hutang</h3><div class="bg-amber-50 p-3 rounded-lg mb-4"><p class="text-sm text-amber-800">Total: <span id="settle-total" class="font-bold">Rp 0</span></p><p class="text-sm text-amber-800">Sudah: <span id="settle-paid" class="font-bold">Rp 0</span></p><p class="text-sm text-amber-800">Sisa: <span id="settle-remaining" class="font-bold text-red-600">Rp 0</span></p></div><div class="space-y-3"><label class="block text-sm font-medium">Nominal Bayar</label><input id="settle-amount" type="number" placeholder="Masukkan jumlah" class="w-full px-4 py-3 rounded-xl border border-gray-200"><label class="block text-sm font-medium mt-2">Metode</label><select id="settle-method" class="w-full px-4 py-3 rounded-xl border border-gray-200"><option value="cash">Tunai</option><option value="transfer">Transfer</option></select></div><div class="flex gap-3 mt-4"><button onclick="closeModal('settle')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button onclick="confirmSettle()" class="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-medium">Konfirmasi</button></div></div></div>
 
-  <div id="modal-expense" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"><h3 class="text-xl font-bold mb-4">Catat Pengeluaran</h3><form id="expense-form" class="space-y-4"><input id="e-cat" placeholder="Kategori (Listrik, Sewa, ATK, dll)" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-desc" placeholder="Keterangan detail" class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-amount" type="number" placeholder="Nominal (Rp)" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-date" type="date" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><select id="e-method" class="w-full px-4 py-3 rounded-xl border border-gray-200"><option value="cash">Bayar Tunai</option><option value="transfer">Bayar Transfer</option></select><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('expense')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
+  <div id="modal-expense" class="modal"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"><h3 class="text-xl font-bold mb-4">Pengeluaran</h3><form id="expense-form" class="space-y-4"><input id="e-cat" placeholder="Kategori" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-desc" placeholder="Keterangan" class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-amount" type="number" placeholder="Nominal (Rp)" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><input id="e-date" type="date" required class="w-full px-4 py-3 rounded-xl border border-gray-200"><select id="e-method" class="w-full px-4 py-3 rounded-xl border border-gray-200"><option value="cash">Tunai</option><option value="transfer">Transfer</option></select><div class="flex gap-3 pt-2"><button type="button" onclick="closeModal('expense')" class="flex-1 py-3 border border-gray-200 rounded-xl">Batal</button><button type="submit" class="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium">Simpan</button></div></form></div></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -223,7 +238,6 @@
     };
     
     const col = function(name) { return collection(db, 'garages', garageId, name); };
-    
     const load = async function(name, opts) {
       opts = opts || {};
       var snapshot = await getDocs(col(name));
@@ -231,14 +245,13 @@
       if(opts.where) { data = data.filter(function(item) { return item[opts.where.f] === opts.where.v; }); }
       return data;
     };
-    
     const add = async function(name, data) { return addDoc(col(name), {...data, createdAt: serverTimestamp()}); };
     const upd = async function(name, id, data) { return updateDoc(doc(db,'garages',garageId,name,id), data); };
     
     window.del = async function(name, id) {
-      if(!confirm('Yakin ingin menghapus data ini?')) return;
-      try { await deleteDoc(doc(db, 'garages', garageId, name, id)); alert('Data berhasil dihapus'); await refreshAll(); } 
-      catch(err) { console.error(err); alert('Gagal menghapus: ' + err.message); }
+      if(!confirm('Hapus data ini?')) return;
+      try { await deleteDoc(doc(db, 'garages', garageId, name, id)); alert('Terhapus'); await refreshAll(); } 
+      catch(err) { alert('Gagal: ' + err.message); }
     };
 
     onAuthStateChanged(auth, async function(u) {
@@ -277,7 +290,7 @@
             garageId = id; role = 'admin';
           } else {
             var code = document.getElementById('g-code').value.trim().toUpperCase();
-            var gSnap = await getDoc(doc(db,'garages',code)); if(!gSnap.exists()) return alert('Kode garage tidak ditemukan!');
+            var gSnap = await getDoc(doc(db,'garages',code)); if(!gSnap.exists()) return alert('Kode tidak ditemukan!');
             var g = gSnap.data();
             if(!g.members.find(function(m) { return m.uid === user.uid; })) {
               await updateDoc(doc(db,'garages',code), { members: g.members.concat([{uid: user.uid, email: user.email, role: 'mekanik'}]) });
@@ -300,31 +313,26 @@
       await refreshAll();
     }
     
-    window.copyCode = function() { navigator.clipboard.writeText(garageId); alert('Kode disalin!'); };
-    
-    document.getElementById('team-form').onsubmit = async function(e) {
-      e.preventDefault();
-      var email = document.getElementById('team-email').value;
-      var r = document.getElementById('team-role').value;
-      var g = await getDoc(doc(db,'garages',garageId));
-      var m = g.data().members;
-      m.push({email: email, role: r});
-      await upd('garages', garageId, {members: m});
-      e.target.reset(); renderTeam();
-    };
-    
-    var renderTeam = async function() {
-      var g = await getDoc(doc(db,'garages',garageId));
-      document.getElementById('team-list').innerHTML = g.data().members.map(function(m) {
-        return '<li class="p-3 flex justify-between"><span>' + m.email + '</span><span class="px-2 py-1 bg-slate-200 rounded text-xs">' + m.role + '</span></li>';
-      }).join('');
+    window.copyCode = function() { navigator.clipboard.writeText(garageId); alert('Disalin!'); };
+
+    // TOGGLE SIDEBAR
+    window.toggleSidebar = function() {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
     };
 
     window.nav = function(id) {
       document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
       document.getElementById(id).classList.add('active');
       document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('bg-amber-500/20','text-amber-400','border','border-amber-500/30'); });
-      event.target.classList.add('bg-amber-500/20','text-amber-400','border','border-amber-500/30');
+      // Note: Active state styling is simplified for brevity
     };
     
     window.openModal = function(id) { document.getElementById('modal-' + id).classList.add('open'); };
@@ -334,7 +342,7 @@
       e.preventDefault();
       try {
         await add('customers', { name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value, plate: document.getElementById('c-plate').value, year: document.getElementById('c-year').value, model: document.getElementById('c-model').value });
-        closeModal('cust'); document.getElementById('cust-form').reset(); alert('Pelanggan disimpan!'); await refreshAll();
+        closeModal('cust'); document.getElementById('cust-form').reset(); alert('Tersimpan!'); await refreshAll();
       } catch(err) { alert('Error: ' + err.message); }
     };
     
@@ -342,7 +350,7 @@
       e.preventDefault();
       try {
         await add('spareparts', { name: document.getElementById('p-name').value, stock: Number(document.getElementById('p-stock').value), minStock: Number(document.getElementById('p-min').value), unit: document.getElementById('p-unit').value, price: Number(document.getElementById('p-price').value) });
-        closeModal('part'); document.getElementById('part-form').reset(); alert('Sparepart ditambahkan!'); await refreshAll();
+        closeModal('part'); document.getElementById('part-form').reset(); alert('Tersimpan!'); await refreshAll();
       } catch(err) { alert('Error: ' + err.message); }
     };
     
@@ -350,14 +358,14 @@
       e.preventDefault();
       try {
         await add('transactions', { type: 'expense', category: 'operational', description: document.getElementById('e-desc').value, amount: Number(document.getElementById('e-amount').value), payment: document.getElementById('e-method').value, date: document.getElementById('e-date').value });
-        closeModal('expense'); document.getElementById('expense-form').reset(); document.getElementById('e-date').value = today; alert('Pengeluaran tercatat!'); await refreshAll();
+        closeModal('expense'); document.getElementById('expense-form').reset(); document.getElementById('e-date').value = today; alert('Tercatat!'); await refreshAll();
       } catch(err) { alert('Error: ' + err.message); }
     };
 
     window.exportCSV = function() {
-      var csv = "Nama,Stok,Satuan,Minimum Stok,Harga Jual\n";
+      var csv = "Nama,Stok,Satuan,Min,Harga\n";
       partsCache.forEach(function(p) { csv += '"' + p.name + '",' + p.stock + ',"' + p.unit + '",' + (p.minStock||0) + ',' + p.price + '\n'; });
-      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download = 'stok_' + today + '.csv'; a.click();
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download = 'stok.csv'; a.click();
     };
 
     window.addServiceRow = function() {
@@ -370,8 +378,8 @@
       document.querySelectorAll('.part-select').forEach(function(sel) {
         var val = sel.value;
         if(partsCache.length) {
-          sel.innerHTML = '<option value="">-- Pilih --</option>' + partsCache.map(function(p) {
-            return '<option value="' + p.id + '" data-price="' + p.price + '" data-stock="' + p.stock + '">' + p.name + ' (Stok: ' + p.stock + ')</option>';
+          sel.innerHTML = '<option value="">Pilih</option>' + partsCache.map(function(p) {
+            return '<option value="' + p.id + '" data-price="' + p.price + '" data-stock="' + p.stock + '">' + p.name + ' (' + p.stock + ')</option>';
           }).join('');
         } else { sel.innerHTML = '<option value="">Kosong</option>'; }
         if(val && partsCache.find(function(p) { return p.id === val; })) sel.value = val;
@@ -380,11 +388,11 @@
 
     window.addPartRow = function() {
       var d = document.createElement('div'); d.className = 'grid grid-cols-[1fr_80px_60px_80px_30px] gap-2 items-center mb-2';
-      d.innerHTML = '<select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)"><option value="gudang">Dari Gudang</option><option value="manual">Manual</option></select><select class="px-2 py-2 rounded-lg border part-select w-full"></select><input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual"><input type="number" placeholder="Harga Satuan" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartSubtotal(this)"><input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartSubtotal(this)"><input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">X</button>';
+      d.innerHTML = '<select class="px-2 py-2 rounded-lg border part-type" onchange="togglePartType(this)"><option value="gudang">Gudang</option><option value="manual">Manual</option></select><select class="px-2 py-2 rounded-lg border part-select w-full"></select><input type="text" placeholder="Nama" class="px-2 py-2 rounded-lg border hidden part-manual"><input type="number" placeholder="Harga" class="px-2 py-2 rounded-lg border part-price" oninput="calcPartSubtotal(this)"><input type="number" placeholder="Qty" min="1" value="1" class="px-2 py-2 rounded-lg border part-qty" oninput="calcPartSubtotal(this)"><input type="text" placeholder="Subtotal" readonly class="px-2 py-2 rounded-lg bg-slate-50 border part-sub font-bold text-slate-700"><button type="button" onclick="this.parentElement.remove();calcTotal()" class="text-red-500">X</button>';
       var sel = d.querySelector('.part-select');
       if(partsCache.length) {
-        sel.innerHTML = '<option value="">-- Pilih --</option>' + partsCache.map(function(p) {
-          return '<option value="' + p.id + '" data-price="' + p.price + '" data-stock="' + p.stock + '">' + p.name + ' (Stok: ' + p.stock + ')</option>';
+        sel.innerHTML = '<option value="">Pilih</option>' + partsCache.map(function(p) {
+          return '<option value="' + p.id + '" data-price="' + p.price + '" data-stock="' + p.stock + '">' + p.name + ' (' + p.stock + ')</option>';
         }).join('');
       } else { sel.innerHTML = '<option value="">Kosong</option>'; }
       sel.onchange = function() { if(this.value) this.parentElement.querySelector('.part-price').value = this.options[this.selectedIndex].dataset.price; calcPartSubtotal(this); };
@@ -420,7 +428,7 @@
       var cid = document.getElementById('tx-customer').value;
       if(!cid) return alert('Pilih pelanggan!');
       var c = customersCache.find(function(x) { return x.id === cid; });
-      if(!c) return alert('Data pelanggan tidak ditemukan!');
+      if(!c) return alert('Pelanggan tidak ditemukan!');
       
       var jasa = [];
       document.querySelectorAll('#service-items>div').forEach(function(r) {
@@ -439,17 +447,17 @@
         
         if(type === 'gudang') {
           var partId = r.querySelector('.part-select').value;
-          if(!partId) return alert("Salah satu baris sparepart belum dipilih dari Gudang!");
+          if(!partId) return alert("Pilih sparepart dari gudang!");
           var partData = partsCache.find(function(x) { return x.id === partId; });
-          if(!partData) return alert("Error data sparepart. Refresh halaman.");
-          if(qty > partData.stock) return alert('Stok ' + partData.name + ' tidak cukup! Tersedia: ' + partData.stock);
+          if(!partData) return alert("Error data. Refresh halaman.");
+          if(qty > partData.stock) return alert('Stok ' + partData.name + ' tidak cukup!');
           parts.push({name: partData.name, qty: qty, price: price, source: 'gudang', partId: partId});
           stockUpdates.push({id: partId, qty: qty, name: partData.name});
         } else {
           parts.push({name: r.querySelector('.part-manual').value, qty: qty, price: price, source: 'manual'});
         }
       }
-      if(jasa.length === 0 && parts.length === 0) return alert('Minimal isi Jasa atau Sparepart!');
+      if(jasa.length === 0 && parts.length === 0) return alert('Isi Jasa atau Sparepart!');
       
       var pay = document.getElementById('tx-pay').value;
       var tot = calcTotal();
@@ -464,15 +472,12 @@
       
       try {
         var ref = await add('transactions', tx);
-        if(pay === 'bon') {
-          await add('receivables', { transactionId: ref.id, customerId: cid, amount: tx.total, status: 'unpaid', date: tx.date });
-        }
+        if(pay === 'bon') await add('receivables', { transactionId: ref.id, customerId: cid, amount: tx.total, status: 'unpaid', date: tx.date });
         if(stockUpdates.length > 0) {
           for(var j = 0; j < stockUpdates.length; j++) {
-            var update = stockUpdates[j];
-            await updateDoc(doc(db, 'garages', garageId, 'spareparts', update.id), { stock: increment(-update.qty) });
+            await updateDoc(doc(db, 'garages', garageId, 'spareparts', stockUpdates[j].id), { stock: increment(-stockUpdates[j].qty) });
           }
-          alert('✅ Stok berhasil dikurangi untuk: ' + stockUpdates.map(function(s){ return s.name + ' (-' + s.qty + ')'; }).join(', '));
+          alert('✅ Stok dikurangi: ' + stockUpdates.map(function(s){ return s.name; }).join(', '));
         }
         showReceipt(tx, c, ref.id);
         document.getElementById('tx-form').reset();
@@ -480,7 +485,6 @@
         document.getElementById('part-items').innerHTML = '';
         document.getElementById('tx-date').value = today;
         calcTotal();
-        if(stockUpdates.length === 0) alert('Transaksi disimpan!');
         await refreshAll();
       } catch(err) { console.error(err); alert('Error: ' + err.message); }
     };
@@ -501,8 +505,8 @@
       document.getElementById('warehouse-list').innerHTML = partsCache.map(function(p) {
         var alertClass = p.stock <= (p.minStock || 5) ? 'alert-row' : '';
         var stockClass = p.stock <= (p.minStock || 5) ? 'stock-low' : '';
-        return '<tr class="hover:bg-slate-50 ' + alertClass + '"><td class="p-4 font-medium">' + p.name + '</td><td class="p-4">' + p.unit + '</td><td class="p-4 text-right ' + stockClass + '">' + p.stock + '</td><td class="p-4 text-right">' + (p.minStock || 5) + '</td><td class="p-4 text-right">' + fmt(p.price) + '</td><td class="p-4 text-center"><button onclick="del(\'spareparts\',\'' + p.id + '\')" class="text-red-500 hover:underline">Hapus</button></td></tr>';
-      }).join('') || '<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>';
+        return '<tr class="hover:bg-slate-50 ' + alertClass + '"><td class="p-4 font-medium">' + p.name + '</td><td class="p-4">' + p.unit + '</td><td class="p-4 text-right ' + stockClass + '">' + p.stock + '</td><td class="p-4 text-right">' + fmt(p.price) + '</td><td class="p-4 text-center"><button onclick="del(\'spareparts\',\'' + p.id + '\')" class="text-red-500 hover:underline">Hapus</button></td></tr>';
+      }).join('') || '<tr><td colspan="5" class="p-8 text-center text-slate-400">Kosong</td></tr>';
       updateAllPartDropdowns();
       document.getElementById('parts-count').textContent = '(' + partsCache.length + ' item)';
     };
@@ -511,8 +515,8 @@
       var list = txCache.filter(function(t) { return t.type === 'expense' && t.category === 'operational'; });
       document.getElementById('expense-list').innerHTML = list.map(function(t) {
         var badgeClass = t.payment === 'cash' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
-        return '<tr><td class="p-4">' + t.date + '</td><td class="p-4">' + (t.description || '-') + '</td><td class="p-4 text-xs text-slate-500">' + t.category + '</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ' + badgeClass + '">' + t.payment.toUpperCase() + '</span></td><td class="p-4 text-right font-bold text-red-600">' + fmt(t.amount) + '</td><td class="p-4 text-center"><button onclick="del(\'transactions\',\'' + t.id + '\')" class="text-red-500 hover:underline">Hapus</button></td></tr>';
-      }).join('') || '<tr><td colspan="6" class="p-8 text-center text-slate-400">Kosong</td></tr>';
+        return '<tr><td class="p-4">' + t.date + '</td><td class="p-4">' + (t.description || '-') + '</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ' + badgeClass + '">' + t.payment.toUpperCase() + '</span></td><td class="p-4 text-right font-bold text-red-600">' + fmt(t.amount) + '</td><td class="p-4 text-center"><button onclick="del(\'transactions\',\'' + t.id + '\')" class="text-red-500 hover:underline">Hapus</button></td></tr>';
+      }).join('') || '<tr><td colspan="5" class="p-8 text-center text-slate-400">Kosong</td></tr>';
     };
     
     window.filterHistory = function(f) {
@@ -528,7 +532,7 @@
         var actionBtn = isUnpaid ? '<button onclick="openSettle(\'' + t.id + '\')" class="btn-sticky bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold">LUNASI</button>' : '<span class="text-xs text-emerald-600 font-medium">LUNAS</span>';
         var phone = customersCache.find(function(c){ return c.id === t.customerId; })?.phone || '';
         return '<tr class="' + rowClass + '"><td class="p-4">' + t.date + '</td><td class="p-4">' + t.customerName + '<br><span class="text-xs text-slate-500">' + t.plate + '</span></td><td class="p-4 text-xs">' + d + '</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium ' + badgeClass + '">' + t.payment.toUpperCase() + '</span></td><td class="p-4 text-right"><div class="text-sm">Total: ' + fmt(t.total) + '</div><div class="text-xs ' + sisaClass + '">Sisa: ' + fmt(t.remainingAmount) + '</div></td><td class="p-4 text-center flex flex-col gap-2 items-center">' + actionBtn + '<button onclick="reprint(\'' + t.id + '\')" class="text-xs text-amber-600 hover:underline">Cetak</button></td></tr>';
-      }).join('') : '<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada transaksi</td></tr>';
+      }).join('') : '<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada</td></tr>';
     };
     
     var renderReceivables = function() {
@@ -551,7 +555,7 @@
     window.confirmSettle = async function() {
       var payAmt = Number(document.getElementById('settle-amount').value);
       var method = document.getElementById('settle-method').value;
-      if(!payAmt || payAmt <= 0) return alert('Masukkan nominal valid!');
+      if(!payAmt || payAmt <= 0) return alert('Masukkan nominal!');
       var tx = txCache.find(function(t) { return t.id === settleTxId; });
       if(!tx) return alert('Transaksi tidak ditemukan');
       if(payAmt > tx.remainingAmount) return alert('Nominal melebihi sisa hutang!');
@@ -572,7 +576,6 @@
 
     window.filterReport = function(f) { filterHistory(f); calcStats(f); };
     
-    // PRINT & WA HELPERS
     var openPrintTab = function(htmlContent) {
       var win = window.open('', '_blank');
       win.document.write('<!DOCTYPE html><html><head><title>Print</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{padding:8px;text-align:left;border-bottom:1px solid #eee;}th{background:#f8fafc;}</style></head><body>' + htmlContent + '</body></html>');
@@ -617,26 +620,26 @@
 
     window.printHistory = function(range) {
       var data = getFilteredTx(range);
-      var label = range === 'today' ? 'Hari Ini (' + today + ')' : (range === 'month' ? 'Bulan Ini (' + today.slice(0,7) + ')' : 'Semua Periode');
+      var label = range === 'today' ? 'Hari Ini' : (range === 'month' ? 'Bulan Ini' : 'Semua');
       var total = 0;
       var rows = data.map(function(t) {
         total += Number(t.total) || 0;
         var det = (t.jasa || []).map(function(j) { return j.name; }).concat((t.parts || []).map(function(p) { return p.name + 'x' + p.qty; })).join(', ');
-        return '<tr style="border-bottom:1px solid #eee;"><td style="padding:8px 4px;">' + t.date + '</td><td style="padding:8px 4px;">' + t.customerName + '</td><td style="padding:8px 4px;">' + t.plate + '</td><td style="padding:8px 4px;">' + det + '</td><td style="padding:8px 4px;">' + t.payment.toUpperCase() + '</td><td style="padding:8px 4px; text-align:right;">' + fmt(t.total) + '</td></tr>';
+        return '<tr style="border-bottom:1px solid #eee;"><td style="padding:8px 4px;">' + t.date + '</td><td style="padding:8px 4px;">' + t.customerName + '</td><td style="padding:8px 4px;">' + det + '</td><td style="padding:8px 4px;">' + t.payment.toUpperCase() + '</td><td style="padding:8px 4px; text-align:right;">' + fmt(t.total) + '</td></tr>';
       }).join('');
-      openPrintTab('<h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><h3 style="text-align:center;margin:0 0 20px;color:#555;font-weight:normal;">Laporan Histori Transaksi - ' + label + '</h3><table><thead><tr><th>Tgl</th><th>Pelanggan</th><th>Plat</th><th>Detail</th><th>Bayar</th><th style="text-align:right;">Nominal</th></tr></thead><tbody>' + rows + '</tbody><tfoot><tr style="font-weight:bold;background:#f1f5f9;"><td colspan="5" style="padding:10px 4px;text-align:right;">TOTAL PENDAPATAN</td><td style="padding:10px 4px;text-align:right;">' + fmt(total) + '</td></tr></tfoot></table>');
+      openPrintTab('<h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><h3 style="text-align:center;margin:0 0 20px;color:#555;">Histori - ' + label + '</h3><table><thead><tr><th>Tgl</th><th>Pelanggan</th><th>Detail</th><th>Bayar</th><th style="text-align:right;">Nominal</th></tr></thead><tbody>' + rows + '</tbody><tfoot><tr style="font-weight:bold;background:#f1f5f9;"><td colspan="4" style="text-align:right;">TOTAL</td><td style="text-align:right;">' + fmt(total) + '</td></tr></tfoot></table>');
     };
 
     window.printReport = function(range) {
       var data = getFilteredTx(range);
-      var label = range === 'today' ? 'Hari Ini (' + today + ')' : (range === 'month' ? 'Bulan Ini (' + today.slice(0,7) + ')' : 'Semua Periode');
+      var label = range === 'today' ? 'Hari Ini' : (range === 'month' ? 'Bulan Ini' : 'Semua');
       var cashIn=0, bankIn=0, bonTotal=0, cashOut=0, bankOut=0;
       data.forEach(function(t) { if(t.status==='lunas'){if(t.payment==='cash')cashIn+=Number(t.total)||0; else bankIn+=Number(t.total)||0;} else bonTotal+=Number(t.remainingAmount)||0; });
       txCache.filter(function(t) { return t.type === 'expense' && t.category === 'operational'; }).forEach(function(t) {
         var match = range==='all'?true:range==='today'?t.date===today:t.date.startsWith(today.slice(0,7));
         if(match){if(t.payment==='cash')cashOut+=Number(t.amount)||0; else bankOut+=Number(t.amount)||0;}
       });
-      openPrintTab('<h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><h3 style="text-align:center;margin:0 0 25px;color:#555;font-weight:normal;">Laporan Keuangan - ' + label + '</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;"><div style="border:1px solid #e2e8f0;padding:15px;border-radius:8px;"><h4 style="margin:0 0 10px;color:#059669;">💰 Pemasukan</h4><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Tunai Masuk:</span><b>' + fmt(cashIn) + '</b></div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Transfer Masuk:</span><b>' + fmt(bankIn) + '</b></div><hr style="margin:8px 0;border:0;border-top:1px solid #eee;"><div style="display:flex;justify-content:space-between;font-weight:bold;"><span>Total Masuk:</span><span>' + fmt(cashIn+bankIn) + '</span></div></div><div style="border:1px solid #e2e8f0;padding:15px;border-radius:8px;"><h4 style="margin:0 0 10px;color:#dc2626;">💸 Pengeluaran</h4><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Tunai Keluar:</span><b>' + fmt(cashOut) + '</b></div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Transfer Keluar:</span><b>' + fmt(bankOut) + '</b></div><hr style="margin:8px 0;border:0;border-top:1px solid #eee;"><div style="display:flex;justify-content:space-between;font-weight:bold;"><span>Total Keluar:</span><span>' + fmt(cashOut+bankOut) + '</span></div></div></div>');
+      openPrintTab('<h2 style="text-align:center;margin:0;">JE GARAGE PRO</h2><h3 style="text-align:center;margin:0 0 25px;color:#555;">Laporan - ' + label + '</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;"><div style="border:1px solid #e2e8f0;padding:15px;border-radius:8px;"><h4 style="margin:0 0 10px;color:#059669;">💰 Pemasukan</h4><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Tunai Masuk:</span><b>' + fmt(cashIn) + '</b></div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Transfer Masuk:</span><b>' + fmt(bankIn) + '</b></div><hr style="margin:8px 0;border:0;border-top:1px solid #eee;"><div style="display:flex;justify-content:space-between;font-weight:bold;"><span>Total Masuk:</span><span>' + fmt(cashIn+bankIn) + '</span></div></div><div style="border:1px solid #e2e8f0;padding:15px;border-radius:8px;"><h4 style="margin:0 0 10px;color:#dc2626;">💸 Pengeluaran</h4><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Tunai Keluar:</span><b>' + fmt(cashOut) + '</b></div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>Transfer Keluar:</span><b>' + fmt(bankOut) + '</b></div><hr style="margin:8px 0;border:0;border-top:1px solid #eee;"><div style="display:flex;justify-content:space-between;font-weight:bold;"><span>Total Keluar:</span><span>' + fmt(cashOut+bankOut) + '</span></div></div></div>');
     };
 
     window.calcStats = function(f) {
@@ -678,7 +681,7 @@
         ]);
         customersCache = results[0]; txCache = results[1]; partsCache = results[2]; recCache = results[3];
         renderCustomers(); renderWarehouse(); renderExpenses(); filterHistory('all'); renderReceivables(); calcStats('all');
-        if(role === 'admin') renderTeam();
+        if(role === 'admin') document.querySelectorAll('.admin-only').forEach(function(el){ el.style.display='block'; });
       } catch(err) { console.error('Refresh Error:', err); }
     }
     window.refreshAll = refreshAll;
